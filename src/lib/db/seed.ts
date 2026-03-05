@@ -1425,6 +1425,370 @@ const seedQuestions = [
       ballHitTo: "second_base_2b",
     },
   },
+
+  // ─── 12U RULES — DROPPED THIRD STRIKE ─────────────────
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "Two outs, nobody on base. The catcher drops strike three. What happens?",
+    options: [
+      { id: "a", text: "The batter is out — strike three ends the at-bat" },
+      { id: "b", text: "The batter can run to first base" },
+      { id: "c", text: "The umpire calls a dead ball" },
+      { id: "d", text: "The pitch doesn't count" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "On a dropped third strike, the batter becomes a runner and can try to reach first base. With two outs this applies regardless of whether first base is occupied. The catcher must throw to first or tag the batter to complete the out.",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 2,
+      count: { balls: 0, strikes: 2 },
+      inning: 4,
+      score: { us: 1, them: 2 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "One out, runner on first base. The catcher drops strike three. Can the batter run to first?",
+    options: [
+      { id: "a", text: "Yes — the batter always runs on a dropped third strike" },
+      { id: "b", text: "No — the batter is out because first base is occupied with less than 2 outs" },
+      { id: "c", text: "Only if the runner on first steals second first" },
+      { id: "d", text: "The umpire decides" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The dropped third strike rule does NOT apply when first base is occupied with fewer than two outs. This prevents the defense from being put in an unfair double-play situation. The batter is simply out on strike three.",
+    positions: ["all"],
+    situation: {
+      runners: ["first"],
+      outs: 1,
+      count: { balls: 1, strikes: 2 },
+      inning: 3,
+      score: { us: 0, them: 1 },
+    },
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "You're the catcher. Two outs, runner on second. You drop strike three. What should you do?",
+    options: [
+      { id: "a", text: "Pick up the ball and throw to first" },
+      { id: "b", text: "Tag the batter before she leaves the box" },
+      { id: "c", text: "Either tag the batter or throw to first" },
+      { id: "d", text: "Nothing — the batter is automatically out" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "With two outs, the dropped third strike rule is in effect regardless of runners on base. You must either tag the batter or throw to first for the out. Do whichever is faster — if she's still in the box, tag her. If she's already running, fire it to first.",
+    positions: ["catcher"],
+    situation: {
+      runners: ["second"],
+      outs: 2,
+      count: { balls: 2, strikes: 2 },
+      inning: 5,
+      score: { us: 3, them: 3 },
+    },
+  },
+
+  // ─── 12U RULES — INFIELD FLY ──────────────────────────
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "Runners on first and second, one out. The batter pops up to the shortstop. The umpire calls 'Infield fly, batter is out!' The shortstop drops the ball. What happens?",
+    options: [
+      { id: "a", text: "The batter is safe because the ball was dropped" },
+      { id: "b", text: "The batter is out — the infield fly rule means she's out regardless" },
+      { id: "c", text: "The runners must advance" },
+      { id: "d", text: "The play is dead and everyone goes back" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "When the umpire calls 'infield fly,' the batter is OUT whether the ball is caught or not. The rule exists to protect the runners — without it, an infielder could intentionally drop the ball to get a cheap double play. Runners can advance at their own risk but are not forced.",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 1,
+      count: { balls: 1, strikes: 0 },
+      inning: 2,
+      score: { us: 2, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "advanced" as const,
+    scenarioText:
+      "Runners on first and second, no outs. A pop fly goes up near the pitcher. When does the infield fly rule apply?",
+    options: [
+      { id: "a", text: "Only with bases loaded" },
+      { id: "b", text: "Runners on first and second, OR bases loaded, with less than 2 outs" },
+      { id: "c", text: "Any time there's a pop fly with runners on base" },
+      { id: "d", text: "Only with 2 outs" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The infield fly rule applies when there are runners on first and second (or bases loaded) with fewer than 2 outs, and a fair fly ball can be caught by an infielder with ordinary effort. It does NOT apply with only a runner on first, or with 2 outs.",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 0,
+      count: { balls: 0, strikes: 1 },
+      inning: 4,
+      score: { us: 1, them: 1 },
+    },
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "advanced" as const,
+    scenarioText:
+      "Runners on first and second, one out. The umpire calls 'infield fly.' You're the runner on second. The ball drops in fair territory. Should you run?",
+    options: [
+      { id: "a", text: "Yes — always advance when the ball is dropped" },
+      { id: "b", text: "No — you must stay on your base" },
+      { id: "c", text: "You CAN advance at your own risk, but you're not forced" },
+      { id: "d", text: "Only if the coach tells you to" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "On an infield fly, the batter is out and the force is removed. Runners CAN advance at their own risk but are not forced to. If the ball drops and the defenders aren't paying attention, a heads-up runner can advance — but if you're tagged, you're out. Be smart about it.",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 1,
+      count: { balls: 2, strikes: 1 },
+      inning: 6,
+      score: { us: 2, them: 3 },
+    },
+  },
+
+  // ─── 12U RULES — STEALING ─────────────────────────────
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    scenarioText:
+      "You're on first base and want to steal second. In 12U fastpitch, when can you leave the base?",
+    options: [
+      { id: "a", text: "Anytime after the pitcher gets the ball" },
+      { id: "b", text: "When the pitch leaves the pitcher's hand" },
+      { id: "c", text: "When the ball crosses home plate" },
+      { id: "d", text: "You can't steal in 12U" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In 12U fastpitch, runners cannot leave the base until the pitch is released from the pitcher's hand. Leaving early is called 'leaving the base too soon' and can result in the runner being called out. Time your jump off the release!",
+    positions: ["all"],
+    situation: {
+      runners: ["first"],
+      outs: 0,
+      count: { balls: 1, strikes: 0 },
+      inning: 2,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "You're on second base, one out. You want to steal third. What should you watch for before going?",
+    options: [
+      { id: "a", text: "Wait for the pitcher to look away, then run" },
+      { id: "b", text: "Watch the catcher's arm strength and the pitcher's release, then go on the pitch" },
+      { id: "c", text: "Only steal on a passed ball" },
+      { id: "d", text: "You should never steal third" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "Stealing third is about timing. Watch the catcher — if she has a weak arm or is slow receiving, third is stealable. Leave on the pitcher's release (not before!). Stealing third puts you 60 feet from home with a chance to score on a passed ball, wild pitch, or ground ball.",
+    positions: ["all"],
+    situation: {
+      runners: ["second"],
+      outs: 1,
+      count: { balls: 0, strikes: 1 },
+      inning: 5,
+      score: { us: 1, them: 2 },
+    },
+  },
+
+  // ─── 12U RULES — PITCHING ─────────────────────────────
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    scenarioText:
+      "What is a 'crow hop' and why is it illegal in fastpitch softball?",
+    options: [
+      { id: "a", text: "Jumping off the mound — it gives the pitcher an unfair advantage" },
+      { id: "b", text: "Replanting the pivot foot and pushing off again during the pitch — it adds illegal momentum" },
+      { id: "c", text: "Hopping sideways on the mound — it's a balk" },
+      { id: "d", text: "Pitching from behind the rubber — it's too far from the batter" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "A crow hop is when the pitcher replants (re-grounds) her pivot foot and pushes off a second time during the delivery. This is illegal because it creates extra forward momentum and effectively shortens the 40-foot pitching distance. The umpire will call an illegal pitch.",
+    positions: ["pitcher"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 1,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "In 12U fastpitch, what is the pitching distance from the rubber to home plate?",
+    options: [
+      { id: "a", text: "35 feet" },
+      { id: "b", text: "40 feet" },
+      { id: "c", text: "43 feet" },
+      { id: "d", text: "46 feet" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The 12U pitching distance is 40 feet. This is shorter than 14U (43 feet) and high school/college (43 feet). The bases are 60 feet apart. Knowing your field dimensions helps you understand throwing distances and how much time you have on plays.",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 1,
+      score: { us: 0, them: 0 },
+    },
+  },
+
+  // ─── 12U RULES — FIELD DIMENSIONS & AWARENESS ─────────
+  {
+    category: "fielding" as const,
+    difficulty: "beginner" as const,
+    scenarioText:
+      "In 12U softball, how far apart are the bases?",
+    options: [
+      { id: "a", text: "50 feet" },
+      { id: "b", text: "55 feet" },
+      { id: "c", text: "60 feet" },
+      { id: "d", text: "65 feet" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "In 12U fastpitch, the bases are 60 feet apart. That means a throw from third to first is about 85 feet (diagonal). Knowing this helps you judge whether you have time to make a play — a ground ball to shortstop requires roughly a 60-70 foot throw to first.",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 1,
+      score: { us: 0, them: 0 },
+    },
+  },
+
+  // ─── 12U RULES — COMMUNICATION DEVICE ─────────────────
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    scenarioText:
+      "Starting in 2026, coaches can use one-way communication devices to call pitches. Who wears the receiving device?",
+    options: [
+      { id: "a", text: "The pitcher" },
+      { id: "b", text: "The catcher — inside the helmet" },
+      { id: "c", text: "Any player on the field" },
+      { id: "d", text: "The shortstop" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The receiving device goes to the catcher only, and it must be inside the catcher's helmet. The coach calling pitches must be inside the dugout. This is one-way communication only — the catcher cannot talk back through the device. It helps speed up the game and keeps pitch-calling private.",
+    positions: ["catcher"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 1,
+      score: { us: 0, them: 0 },
+    },
+  },
+
+  // ─── 12U SITUATIONS — GAME AWARENESS ──────────────────
+  {
+    category: "baserunning" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "You're on third base with one out. The batter hits a ground ball to the second baseman. The infield is playing back. What do you do?",
+    options: [
+      { id: "a", text: "Run home immediately on contact" },
+      { id: "b", text: "Wait to see if the ball gets through" },
+      { id: "c", text: "Read the ground ball — if it's hit to the right side with the infield back, go home" },
+      { id: "d", text: "Stay on third no matter what" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "With the infield playing back and a ground ball to the right side (first or second baseman), the throw to home is long and difficult. The fielder's first instinct is usually to get the out at first. Read the ball off the bat — if it's on the ground to the right side, you can score. At 12U with 60-foot bases, you're only 60 feet from home!",
+    positions: ["all"],
+    situation: {
+      runners: ["third"],
+      outs: 1,
+      count: { balls: 1, strikes: 1 },
+      inning: 5,
+      score: { us: 2, them: 2 },
+      ballHitTo: "second_base_2b",
+      perspective: "baserunner_on_third",
+    },
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "advanced" as const,
+    scenarioText:
+      "Runner on third, one out. You're playing first base. A ground ball is hit right to you. What's your priority?",
+    options: [
+      { id: "a", text: "Always throw home to stop the run" },
+      { id: "b", text: "Check the runner — if she's going, throw home; if not, take the out at first" },
+      { id: "c", text: "Step on first base every time" },
+      { id: "d", text: "Throw to second for the force" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "With a runner on third and one out, you have to read the situation. Look the runner back at third first. If she breaks for home, throw there. If she stays, take the easy out at first. Getting the sure out at first is usually the smart play — don't throw home unless you have a real chance to get her.",
+    positions: ["first base"],
+    situation: {
+      runners: ["third"],
+      outs: 1,
+      count: { balls: 0, strikes: 2 },
+      inning: 6,
+      score: { us: 3, them: 4 },
+      ballHitTo: "first_base_1b",
+      perspective: "fielder_1b",
+    },
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "intermediate" as const,
+    scenarioText:
+      "Runners on first and third, no outs. The runner on first attempts to steal second. You're the catcher. What's the smart play?",
+    options: [
+      { id: "a", text: "Always throw to second to get the steal" },
+      { id: "b", text: "Hold the ball — don't let the runner on third score" },
+      { id: "c", text: "Fake a throw to second and check the runner at third" },
+      { id: "d", text: "Look the runner at third back, then decide whether to throw to second" },
+    ],
+    correctOptionId: "d",
+    explanation:
+      "This is the classic 'first and third steal' situation. The offense WANTS you to throw to second so the runner on third can score. Step toward third and look the runner back. If she's staying, you can throw to second. If she breaks, throw to third or run at her. Never blindly throw to second — that's how runs score at 12U.",
+    positions: ["catcher"],
+    situation: {
+      runners: ["first", "third"],
+      outs: 0,
+      count: { balls: 1, strikes: 1 },
+      inning: 4,
+      score: { us: 1, them: 1 },
+      perspective: "catcher",
+    },
+  },
 ];
 
 async function seed() {
