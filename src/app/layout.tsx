@@ -15,10 +15,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fast Pitch IQ — Softball Game Intelligence",
+  title: "Softball IQ — Softball Game Intelligence",
   description:
-    "Build your softball game IQ with daily situational quizzes, team assignments, and progress tracking. Built for 12U fastpitch softball.",
-  metadataBase: new URL("https://fastpitchiq.com"),
+    "Build your softball IQ with daily situational quizzes, team assignments, and progress tracking. Built for girls' softball.",
+  metadataBase: new URL("https://softballiq.app"),
+  icons: {
+    icon: [
+      {
+        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥎</text></svg>",
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
