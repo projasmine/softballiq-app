@@ -1,10 +1,11 @@
 import { getQuestionBank } from "@/app/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { QuestionEditButton } from "@/components/question-edit-form";
 import type { QuestionOption } from "@/lib/db/schema";
 
 export default async function QuestionsPage() {
-  const questionsList = await getQuestionBank();
+  const { questions: questionsList, teamId } = await getQuestionBank();
 
   return (
     <div className="space-y-4">
@@ -16,13 +17,33 @@ export default async function QuestionsPage() {
       {questionsList.map((q) => (
         <Card key={q.id}>
           <CardContent className="pt-3 pb-3 space-y-2">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
                 {q.category}
               </Badge>
               <Badge variant="outline" className="text-xs">
                 {q.difficulty}
               </Badge>
+              {q.hasOverride && (
+                <Badge className="text-xs bg-amber-600/20 text-amber-400 border-amber-600/30">
+                  Customized
+                </Badge>
+              )}
+              <div className="ml-auto">
+                {teamId && (
+                  <QuestionEditButton
+                    question={{
+                      id: q.id,
+                      scenarioText: q.scenarioText,
+                      options: q.options,
+                      correctOptionId: q.correctOptionId,
+                      explanation: q.explanation,
+                      hasOverride: q.hasOverride,
+                    }}
+                    teamId={teamId}
+                  />
+                )}
+              </div>
             </div>
             <p className="text-sm">{q.scenarioText}</p>
             <div className="text-xs text-muted-foreground space-y-1">

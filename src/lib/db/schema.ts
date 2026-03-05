@@ -8,6 +8,7 @@ import {
   boolean,
   varchar,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -105,6 +106,31 @@ export const questions = pgTable("questions", {
     .defaultNow()
     .notNull(),
 });
+
+// ─── Team Question Overrides ────────────────────────────
+export const teamQuestionOverrides = pgTable(
+  "team_question_overrides",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" })
+      .notNull(),
+    questionId: uuid("question_id")
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    scenarioText: text("scenario_text"),
+    options: jsonb("options").$type<QuestionOption[]>(),
+    correctOptionId: text("correct_option_id"),
+    explanation: text("explanation"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [unique().on(t.teamId, t.questionId)]
+);
 
 // ─── Quiz Attempts ──────────────────────────────────────
 export const quizAttempts = pgTable("quiz_attempts", {
@@ -244,6 +270,7 @@ export const teamsRelations = relations(teams, ({ one, many }) => ({
   }),
   members: many(teamMembers),
   assignments: many(assignments),
+  questionOverrides: many(teamQuestionOverrides),
 }));
 
 export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
@@ -319,6 +346,20 @@ export const assignmentCompletionsRelations = relations(
     user: one(profiles, {
       fields: [assignmentCompletions.userId],
       references: [profiles.id],
+    }),
+  })
+);
+
+export const teamQuestionOverridesRelations = relations(
+  teamQuestionOverrides,
+  ({ one }) => ({
+    team: one(teams, {
+      fields: [teamQuestionOverrides.teamId],
+      references: [teams.id],
+    }),
+    question: one(questions, {
+      fields: [teamQuestionOverrides.questionId],
+      references: [questions.id],
     }),
   })
 );
