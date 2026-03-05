@@ -1,0 +1,119 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { SoftballField } from "./softball-field";
+import { AnswerOption } from "./answer-option";
+import { ExplanationPanel } from "./explanation-panel";
+import type { QuestionOption, Situation } from "@/lib/db/schema";
+import { categoryColorClass } from "@/lib/utils";
+
+interface QuestionCardProps {
+  questionNumber: number;
+  totalQuestions: number;
+  category: string;
+  difficulty: string;
+  scenarioText: string;
+  options: QuestionOption[];
+  correctOptionId: string;
+  explanation: string;
+  situation?: Situation | null;
+  playerPosition?: string;
+  onAnswer: (optionId: string) => void;
+  onNext: () => void;
+}
+
+export function QuestionCard({
+  questionNumber,
+  totalQuestions,
+  category,
+  difficulty,
+  scenarioText,
+  options,
+  correctOptionId,
+  explanation,
+  situation,
+  playerPosition,
+  onAnswer,
+  onNext,
+}: QuestionCardProps) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [answered, setAnswered] = useState(false);
+  const submittingRef = useRef(false);
+
+  const handleSelect = (optionId: string) => {
+    if (answered || submittingRef.current) return;
+    submittingRef.current = true;
+    setSelectedId(optionId);
+    setAnswered(true);
+    onAnswer(optionId);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Progress */}
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <span>
+          Question {questionNumber} of {totalQuestions}
+        </span>
+        <div className="flex gap-2">
+          <Badge variant="outline" className={categoryColorClass[category] ?? ""}>
+            {category}
+          </Badge>
+          <Badge variant="outline">{difficulty}</Badge>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+        <div
+          className="h-full bg-primary rounded-full transition-all duration-500"
+          style={{
+            width: `${(questionNumber / totalQuestions) * 100}%`,
+          }}
+        />
+      </div>
+
+      {/* Field diagram */}
+      {situation && (
+        <SoftballField
+          situation={situation}
+          playerPosition={playerPosition}
+          className="mb-2"
+        />
+      )}
+
+
+      {/* Scenario */}
+      <Card className="bg-card border-border">
+        <CardContent className="pt-4 pb-3">
+          <p className="text-base leading-relaxed">{scenarioText}</p>
+        </CardContent>
+      </Card>
+
+      {/* Answer options */}
+      <div className="space-y-3">
+        {options.map((option) => (
+          <AnswerOption
+            key={option.id}
+            option={option}
+            isSelected={selectedId === option.id}
+            isCorrect={option.id === correctOptionId}
+            revealed={answered}
+            onSelect={() => handleSelect(option.id)}
+          />
+        ))}
+      </div>
+
+      {/* Explanation */}
+      {answered && (
+        <ExplanationPanel
+          explanation={explanation}
+          isCorrect={selectedId === correctOptionId}
+          onNext={onNext}
+        />
+      )}
+    </div>
+  );
+}

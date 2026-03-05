@@ -1,65 +1,72 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Flame, Trophy, Brain, Users } from "lucide-react";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <div className="max-w-lg mx-auto px-4 py-12 text-center space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            Fast Pitch <span className="text-primary">IQ</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-muted-foreground">
+            Build your softball game IQ, one play at a time
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="flex flex-col gap-3 max-w-xs mx-auto">
+          <Button asChild size="lg" className="text-base">
+            <Link href="/play">Play Now</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link href="/join">Join a Team</Link>
+          </Button>
+          <p className="text-sm text-muted-foreground">
+            Coach?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
+            </Link>
+          </p>
         </div>
-      </main>
+
+        {/* Features */}
+        <div className="grid grid-cols-2 gap-4 pt-8">
+          <div className="p-4 rounded-xl bg-card border border-border text-center space-y-2">
+            <Brain className="h-8 w-8 mx-auto text-primary" />
+            <h3 className="font-semibold text-sm">Situational Quizzes</h3>
+            <p className="text-xs text-muted-foreground">
+              Real game scenarios with visual field diagrams
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border text-center space-y-2">
+            <Flame className="h-8 w-8 mx-auto text-orange-500" />
+            <h3 className="font-semibold text-sm">Daily Streaks</h3>
+            <p className="text-xs text-muted-foreground">
+              5 questions a day keeps the errors away
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border text-center space-y-2">
+            <Users className="h-8 w-8 mx-auto text-blue-500" />
+            <h3 className="font-semibold text-sm">Team Learning</h3>
+            <p className="text-xs text-muted-foreground">
+              Coaches assign, players compete together
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border text-center space-y-2">
+            <Trophy className="h-8 w-8 mx-auto text-yellow-500" />
+            <h3 className="font-semibold text-sm">Leaderboard</h3>
+            <p className="text-xs text-muted-foreground">
+              Track progress and rank against teammates
+            </p>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground pt-4">
+          Built for 12U girls&apos; fastpitch softball
+        </p>
+      </div>
     </div>
   );
 }

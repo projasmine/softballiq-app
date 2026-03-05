@@ -1,0 +1,154 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default function SignupPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [role, setRole] = useState<"player" | "coach">("player");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, displayName, role }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Failed to create account");
+      setLoading(false);
+      return;
+    }
+
+    // Auto sign in after signup
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Account created but sign-in failed. Please log in.");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/onboarding");
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            Join Fast Pitch IQ
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Build your softball game IQ
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Name</Label>
+              <Input
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your name"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                minLength={6}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>I am a...</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole("player")}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${
+                    role === "player"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <span className="text-2xl block mb-1">⚾</span>
+                  <span className="font-medium text-sm">Player</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("coach")}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${
+                    role === "coach"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <span className="text-2xl block mb-1">📋</span>
+                  <span className="font-medium text-sm">Coach</span>
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading ? "Creating account..." : "Sign Up"}
+            </Button>
+
+            <p className="text-sm text-center text-muted-foreground">
+              Already have an account?{" "}
+              <Link href="/login" className="text-primary hover:underline">
+                Log in
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
