@@ -15,7 +15,9 @@ import {
   videoAssignments,
   videoComments,
   teamQuestionOverrides,
+  pushSubscriptions,
 } from "@/lib/db/schema";
+import { sendPushNotification } from "@/lib/webpush";
 import type { QuestionOption } from "@/lib/db/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { applyTeamOverrides } from "@/lib/questions";
@@ -484,6 +486,35 @@ export async function createAssignment(data: {
   }
 
   revalidatePath("/assignments");
+
+  // Send push notifications to all players on this team
+  const players = await db
+    .select({ userId: teamMembers.userId })
+    .from(teamMembers)
+    .where(and(eq(teamMembers.teamId, data.teamId), eq(teamMembers.role, "player")));
+
+  if (players.length > 0) {
+    const subs = await db
+      .select()
+      .from(pushSubscriptions)
+      .where(inArray(pushSubscriptions.userId, players.map((p) => p.userId)));
+
+    await Promise.allSettled(
+      subs.map((sub) =>
+        sendPushNotification(sub, {
+          title: "New Assignment",
+          body: data.title,
+          url: "/assignments",
+        }).catch(async (err) => {
+          // Remove stale subscriptions (HTTP 410 Gone)
+          if (err?.statusCode === 410) {
+            await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, sub.endpoint));
+          }
+        })
+      )
+    );
+  }
+
   return { success: true, assignmentId: assignment.id };
 }
 
@@ -1160,6 +1191,34 @@ export async function createVideoAssignment(data: {
   });
 
   revalidatePath("/assignments");
+
+  // Send push notifications to all players on this team
+  const players = await db
+    .select({ userId: teamMembers.userId })
+    .from(teamMembers)
+    .where(and(eq(teamMembers.teamId, data.teamId), eq(teamMembers.role, "player")));
+
+  if (players.length > 0) {
+    const subs = await db
+      .select()
+      .from(pushSubscriptions)
+      .where(inArray(pushSubscriptions.userId, players.map((p) => p.userId)));
+
+    await Promise.allSettled(
+      subs.map((sub) =>
+        sendPushNotification(sub, {
+          title: "New Video Assignment",
+          body: data.title,
+          url: "/assignments",
+        }).catch(async (err) => {
+          if (err?.statusCode === 410) {
+            await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, sub.endpoint));
+          }
+        })
+      )
+    );
+  }
+
   return { success: true };
 }
 

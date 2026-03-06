@@ -241,6 +241,20 @@ export const videoAssignments = pgTable("video_assignments", {
     .notNull(),
 });
 
+// ─── Push Subscriptions ────────────────────────────────
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => profiles.id, { onDelete: "cascade" })
+    .notNull(),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ─── Video Comments ────────────────────────────────────
 export const videoComments = pgTable("video_comments", {
   id: uuid("id").defaultRandom().primaryKey(),
