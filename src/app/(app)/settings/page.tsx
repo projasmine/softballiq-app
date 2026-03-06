@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updatePositions, signOut, getDashboardData } from "@/app/actions";
 import { Loader2 } from "lucide-react";
+import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 
 const POSITIONS = [
   "Pitcher",
@@ -108,6 +109,15 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Notifications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PushNotificationToggle />
+        </CardContent>
+      </Card>
 
       <Button
         variant="outline"
