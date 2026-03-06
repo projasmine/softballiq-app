@@ -102,6 +102,9 @@ export const questions = pgTable("questions", {
   explanation: text("explanation").notNull(),
   positions: jsonb("positions").$type<string[]>().default([]),
   situation: jsonb("situation").$type<Situation>(),
+  // Null = system question; set = coach-created custom question
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "cascade" }),
+  createdBy: uuid("created_by").references(() => profiles.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -271,6 +274,7 @@ export const teamsRelations = relations(teams, ({ one, many }) => ({
   members: many(teamMembers),
   assignments: many(assignments),
   questionOverrides: many(teamQuestionOverrides),
+  customQuestions: many(questions),
 }));
 
 export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
@@ -386,6 +390,17 @@ export const videoCommentsRelations = relations(videoComments, ({ one }) => ({
   }),
   user: one(profiles, {
     fields: [videoComments.userId],
+    references: [profiles.id],
+  }),
+}));
+
+export const questionsRelations = relations(questions, ({ one }) => ({
+  team: one(teams, {
+    fields: [questions.teamId],
+    references: [teams.id],
+  }),
+  creator: one(profiles, {
+    fields: [questions.createdBy],
     references: [profiles.id],
   }),
 }));

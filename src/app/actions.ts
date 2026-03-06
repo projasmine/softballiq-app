@@ -16,8 +16,8 @@ import {
   videoComments,
   teamQuestionOverrides,
 } from "@/lib/db/schema";
-import type { QuestionOption } from "@/lib/db/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import type { QuestionOption, Situation } from "@/lib/db/schema";
+import { eq, and, desc, sql, inArray, isNull, or } from "drizzle-orm";
 import { applyTeamOverrides } from "@/lib/questions";
 import { auth, signOut as nextAuthSignOut } from "@/lib/auth-config";
 import { redirect } from "next/navigation";
@@ -201,10 +201,16 @@ export async function startDailyRep() {
     recentQuestionIds = recentAnswers.map((a) => a.questionId);
   }
 
-  // Get 5 questions, preferring position-relevant ones
+  // Get 5 questions (system questions only), preferring position-relevant ones
   let questionPool = await db
     .select()
     .from(questions)
+    .where(
+      or(
+        isNull(questions.teamId),
+        membership?.teamId ? eq(questions.teamId, membership.teamId) : isNull(questions.teamId)
+      )
+    )
     .orderBy(sql`RANDOM()`)
     .limit(20);
 
@@ -464,10 +470,11 @@ export async function createAssignment(data: {
     if (data.difficultyFilter) {
       filters.push(eq(questions.difficulty, data.difficultyFilter as "beginner" | "intermediate" | "advanced"));
     }
+    filters.push(isNull(questions.teamId));
     const pool = await db
       .select({ id: questions.id })
       .from(questions)
-      .where(filters.length > 0 ? and(...filters) : undefined)
+      .where(and(...filters))
       .orderBy(sql`RANDOM()`)
       .limit(data.questionCount);
     questionIds = pool.map((q) => q.id);
@@ -930,10 +937,29 @@ export async function getQuestionBank() {
     .where(and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach")))
     .limit(1);
 
-  const allQuestions = await db.select().from(questions).orderBy(questions.category);
-  const merged = await applyTeamOverrides(allQuestions, membership?.teamId);
+  const allQuestions = await db
+    .select()
+    .from(questions)
+    .where(
+      or(
+        isNull(questions.teamId),
+        membership?.teamId ? eq(questions.teamId, membership.teamId) : isNull(questions.teamId)
+      )
+    )
+    .orderBy(questions.category);
 
-  return { questions: merged, teamId: membership?.teamId ?? null };
+  // Only apply team overrides to system questions
+  const systemQuestions = allQuestions.filter((q) => q.teamId === null);
+  const customQuestions = allQuestions.filter((q) => q.teamId !== null);
+  const merged = await applyTeamOverrides(systemQuestions, membership?.teamId);
+
+  return {
+    questions: [
+      ...merged,
+      ...customQuestions.map((q) => ({ ...q, hasOverride: false, isCustom: true })),
+    ],
+    teamId: membership?.teamId ?? null,
+  };
 }
 
 export async function getTeamAssignments() {
@@ -1369,6 +1395,90 @@ export async function resetQuestionOverride(teamId: string, questionId: string) 
         eq(teamQuestionOverrides.questionId, questionId)
       )
     );
+
+  revalidatePath("/questions");
+  return { success: true };
+}
+
+// ─── Custom Question Actions ────────────────────────────
+export async function createCustomQuestion(data: {
+  teamId: string;
+  scenarioText: string;
+  options: QuestionOption[];
+  correctOptionId: string;
+  explanation: string;
+  category: "baserunning" | "fielding" | "hitting" | "general";
+  difficulty: "beginner" | "intermediate" | "advanced";
+  situation?: Situation | null;
+}) {
+  const userId = await requireUserId();
+
+  // Verify the user is a coach on this team
+  const [coachMembership] = await db
+    .select()
+    .from(teamMembers)
+    .where(
+      and(
+        eq(teamMembers.userId, userId),
+        eq(teamMembers.teamId, data.teamId),
+        eq(teamMembers.role, "coach")
+      )
+    )
+    .limit(1);
+  if (!coachMembership) throw new Error("Not authorized");
+
+  if (!data.scenarioText.trim()) throw new Error("Scenario text is required");
+  if (data.options.length < 2) throw new Error("At least 2 options required");
+  if (!data.options.some((o) => o.id === data.correctOptionId))
+    throw new Error("Correct option must be one of the provided options");
+  if (!data.explanation.trim()) throw new Error("Explanation is required");
+
+  const [question] = await db
+    .insert(questions)
+    .values({
+      teamId: data.teamId,
+      createdBy: userId,
+      category: data.category,
+      difficulty: data.difficulty,
+      scenarioText: data.scenarioText.trim(),
+      options: data.options,
+      correctOptionId: data.correctOptionId,
+      explanation: data.explanation.trim(),
+      situation: data.situation ?? null,
+    })
+    .returning({ id: questions.id });
+
+  revalidatePath("/questions");
+  return { success: true, questionId: question.id };
+}
+
+export async function deleteCustomQuestion(questionId: string) {
+  const userId = await requireUserId();
+
+  // Get the question and verify it's a custom question created by this coach's team
+  const [question] = await db
+    .select({ teamId: questions.teamId, createdBy: questions.createdBy })
+    .from(questions)
+    .where(eq(questions.id, questionId))
+    .limit(1);
+
+  if (!question || !question.teamId) throw new Error("Custom question not found");
+
+  // Verify the user is a coach on that team
+  const [coachMembership] = await db
+    .select()
+    .from(teamMembers)
+    .where(
+      and(
+        eq(teamMembers.userId, userId),
+        eq(teamMembers.teamId, question.teamId),
+        eq(teamMembers.role, "coach")
+      )
+    )
+    .limit(1);
+  if (!coachMembership) throw new Error("Not authorized");
+
+  await db.delete(questions).where(eq(questions.id, questionId));
 
   revalidatePath("/questions");
   return { success: true };
