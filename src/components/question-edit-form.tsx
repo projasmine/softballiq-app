@@ -13,6 +13,17 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { saveQuestionOverride, resetQuestionOverride } from "@/app/actions";
 import type { QuestionOption } from "@/lib/db/schema";
 import { Pencil, RotateCcw } from "lucide-react";
@@ -154,15 +165,33 @@ export function QuestionEditButton({
 
         <DialogFooter>
           {question.hasOverride && (
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              disabled={resetting}
-              className="mr-auto"
-            >
-              <RotateCcw className="size-3 mr-1" />
-              {resetting ? "Resetting..." : "Reset to Original"}
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  disabled={resetting}
+                  className="mr-auto"
+                >
+                  <RotateCcw className="size-3 mr-1" />
+                  {resetting ? "Resetting..." : "Reset to Original"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reset to Original?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to reset this question to the
+                    original? Your team&apos;s customizations will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleReset}>
+                    Reset
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save for Team"}
