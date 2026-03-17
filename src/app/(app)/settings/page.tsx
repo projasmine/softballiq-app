@@ -2,9 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { updatePositions, signOut, getDashboardData } from "@/app/actions";
-import { Loader2 } from "lucide-react";
+import {
+  updatePositions,
+  updateProfile,
+  signOut,
+  getDashboardData,
+  deleteTeam,
+} from "@/app/actions";
+import { Loader2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const POSITIONS = [
   "Pitcher",
@@ -19,11 +28,20 @@ const POSITIONS = [
 ];
 
 export default function SettingsPage() {
-  const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
+  const router = useRouter();
   const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [teamName, setTeamName] = useState("");
+  const [teamId, setTeamId] = useState<string | null>(null);
+  const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPositions, setSavingPositions] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -31,8 +49,13 @@ export default function SettingsPage() {
         const data = await getDashboardData();
         if (data?.profile) {
           setDisplayName(data.profile.displayName);
+          setEmail(data.profile.email);
           setRole(data.profile.role);
           setSelectedPositions((data.profile.positions as string[]) || []);
+        }
+        if (data?.membership) {
+          setTeamName(data.membership.teamName);
+          setTeamId(data.membership.teamId);
         }
       } catch {
         // Failed to load settings
@@ -49,14 +72,45 @@ export default function SettingsPage() {
     );
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  const handleSavePositions = async () => {
+    setSavingPositions(true);
     try {
       await updatePositions(selectedPositions);
     } catch {
       // Failed to save
     } finally {
-      setSaving(false);
+      setSavingPositions(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    setProfileError("");
+    setProfileSuccess(false);
+    try {
+      const result = await updateProfile({ displayName, email });
+      if (result.success) {
+        setProfileSuccess(true);
+        setTimeout(() => setProfileSuccess(false), 2000);
+      } else {
+        setProfileError(result.error || "Failed to update profile");
+      }
+    } catch {
+      setProfileError("Failed to update profile");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleDeleteTeam = async () => {
+    if (!teamId) return;
+    setDeleting(true);
+    try {
+      await deleteTeam(teamId);
+      router.push("/dashboard");
+    } catch {
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
@@ -72,15 +126,46 @@ export default function SettingsPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Settings</h1>
 
+      {/* Profile */}
       <Card>
-        <CardContent className="pt-4 space-y-2">
-          <p className="text-sm text-muted-foreground">Name</p>
-          <p className="font-medium">{displayName}</p>
-          <p className="text-sm text-muted-foreground mt-2">Role</p>
-          <p className="font-medium capitalize">{role}</p>
+        <CardHeader>
+          <CardTitle className="text-base">Profile</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Name</Label>
+            <Input
+              id="displayName"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Role</Label>
+            <p className="text-sm font-medium capitalize">{role}</p>
+          </div>
+          {profileError && (
+            <p className="text-sm text-red-500">{profileError}</p>
+          )}
+          {profileSuccess && (
+            <p className="text-sm text-green-500">Profile updated!</p>
+          )}
+          <Button onClick={handleSaveProfile} size="sm" disabled={savingProfile}>
+            {savingProfile ? "Saving..." : "Save Profile"}
+          </Button>
         </CardContent>
       </Card>
 
+      {/* Positions — players only */}
       {role === "player" && (
         <Card>
           <CardHeader>
@@ -102,9 +187,54 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
-            <Button onClick={handleSave} size="sm" disabled={saving}>
-              {saving ? "Saving..." : "Save Positions"}
+            <Button onClick={handleSavePositions} size="sm" disabled={savingPositions}>
+              {savingPositions ? "Saving..." : "Save Positions"}
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Delete Team — coaches only */}
+      {role === "coach" && teamId && (
+        <Card className="border-red-500/20">
+          <CardHeader>
+            <CardTitle className="text-base text-red-500">Delete Team</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!confirmDelete ? (
+              <Button
+                variant="outline"
+                className="w-full text-red-500 hover:text-red-600 border-red-500/30 hover:border-red-500/50"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Team
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-red-400">
+                  This will permanently delete <strong>{teamName}</strong> and all its assignments, scores, and player data. This cannot be undone.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleDeleteTeam}
+                    disabled={deleting}
+                  >
+                    {deleting ? "Deleting..." : "Yes, Delete Team"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={deleting}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

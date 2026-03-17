@@ -16,15 +16,15 @@ import { cn } from "@/lib/utils";
 const playerNav = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/daily-rep", icon: Flame, label: "Daily Rep" },
-  { href: "/assignments", icon: ClipboardList, label: "Assigned" },
-  { href: "/leaderboard", icon: Trophy, label: "Board" },
-  { href: "/progress", icon: BarChart3, label: "Progress" },
+  { href: "/assignments", icon: ClipboardList, label: "Assignments" },
+  { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+  { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
 const coachNav = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/team", icon: Users, label: "Team" },
-  { href: "/assignments", icon: ClipboardList, label: "Assign" },
+  { href: "/assignments", icon: ClipboardList, label: "Assignments" },
   { href: "/questions", icon: BarChart3, label: "Questions" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];

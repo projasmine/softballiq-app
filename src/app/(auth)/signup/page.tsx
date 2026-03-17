@@ -45,7 +45,7 @@ export default function SignupPage() {
     });
 
     if (result?.error) {
-      setError("Account created but sign-in failed. Please log in.");
+      setError("Account created but sign-in failed. Please sign in.");
       setLoading(false);
       return;
     }
@@ -58,10 +58,10 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            Join Fast Pitch IQ
+            Join Softball IQ
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Build your softball game IQ
+            Build your softball IQ
           </p>
         </CardHeader>
         <CardContent>
@@ -103,7 +103,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>I am a...</Label>
+              <Label>Role</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -143,7 +143,7 @@ export default function SignupPage() {
             <p className="text-sm text-center text-muted-foreground">
               Already have an account?{" "}
               <Link href="/login" className="text-primary hover:underline">
-                Log in
+                Sign in
               </Link>
             </p>
           </form>
