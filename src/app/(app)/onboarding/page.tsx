@@ -107,6 +107,9 @@ export default function OnboardingPage() {
                     placeholder="e.g. Thunder 12U"
                   />
                 </div>
+                {error && (
+                  <p className="text-sm text-red-500 text-center">{error}</p>
+                )}
                 <Button
                   onClick={handleCreateTeam}
                   className="w-full"
@@ -114,6 +117,35 @@ export default function OnboardingPage() {
                   disabled={!teamName || loading}
                 >
                   {loading ? "Creating..." : "Create Team"}
+                </Button>
+
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Join an Existing Team</Label>
+                  <Input
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. BOLT2024"
+                    maxLength={8}
+                    className="text-center text-lg tracking-widest font-mono"
+                  />
+                </div>
+                <Button
+                  onClick={handleJoinTeam}
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                  disabled={joinCode.length < 4 || loading}
+                >
+                  {loading ? "Joining..." : "Join Team as Coach"}
                 </Button>
               </>
             ) : (
@@ -157,6 +189,11 @@ export default function OnboardingPage() {
         </Card>
       </div>
     );
+  }
+
+  if (step === 3 && role === "coach" && !createdCode) {
+    router.push("/dashboard");
+    return null;
   }
 
   if (step === 3 && role === "coach" && createdCode) {

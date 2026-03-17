@@ -43,7 +43,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Sign in to Fast Pitch IQ
+            Sign in to Softball IQ
           </p>
         </CardHeader>
         <CardContent>
@@ -69,6 +69,15 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-muted-foreground hover:text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             {error && (

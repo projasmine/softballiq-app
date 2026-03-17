@@ -18,6 +18,7 @@ import {
 } from "@/lib/db/schema";
 import type { QuestionOption } from "@/lib/db/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { hash } from "bcryptjs";
 import { applyTeamOverrides } from "@/lib/questions";
 import { auth, signOut as nextAuthSignOut } from "@/lib/auth-config";
 import { redirect } from "next/navigation";
@@ -1371,6 +1372,35 @@ export async function resetQuestionOverride(teamId: string, questionId: string) 
     );
 
   revalidatePath("/questions");
+  return { success: true };
+}
+
+// ─── Password Reset Actions ─────────────────────────────
+export async function resetPassword(email: string, newPassword: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) {
+    return { success: false, error: "Email is required" };
+  }
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: "Password must be at least 6 characters" };
+  }
+
+  const [user] = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.email, normalizedEmail))
+    .limit(1);
+
+  if (!user) {
+    return { success: false, error: "No account found with that email" };
+  }
+
+  const passwordHash = await hash(newPassword, 12);
+  await db
+    .update(profiles)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(profiles.id, user.id));
+
   return { success: true };
 }
 

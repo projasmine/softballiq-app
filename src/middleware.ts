@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  const publicRoutes = ["/", "/login", "/signup"];
+  const publicRoutes = ["/", "/login", "/signup", "/forgot-password"];
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
     pathname.startsWith("/play") ||
@@ -21,7 +21,7 @@ export default auth((req) => {
     return NextResponse.redirect(url);
   }
 
-  if (req.auth && (pathname === "/login" || pathname === "/signup")) {
+  if (req.auth && ["/login", "/signup", "/forgot-password"].includes(pathname)) {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
