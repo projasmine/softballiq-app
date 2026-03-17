@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SoftballField } from "./softball-field";
+import { BatterPlate } from "./batter-plate";
 import { AnswerOption } from "./answer-option";
 import { ExplanationPanel } from "./explanation-panel";
 import type { QuestionOption, Situation } from "@/lib/db/schema";
@@ -115,14 +116,16 @@ export function QuestionCard({
         />
       </div>
 
-      {/* Field diagram */}
-      {situation && (
+      {/* Visual diagram */}
+      {category === "hitting" || category === "general" ? (
+        <BatterPlate situation={situation} className="mb-2" />
+      ) : situation ? (
         <SoftballField
           situation={situation}
           playerPosition={playerPosition}
           className="mb-2"
         />
-      )}
+      ) : null}
 
 
       {/* Scenario */}

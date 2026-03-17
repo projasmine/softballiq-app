@@ -1,11 +1,16 @@
 import { db } from "./index";
 import { questions } from "./schema";
 
-const seedQuestions = [
+const ALL_AGES = ["8U", "10U", "12U", "14U"];
+const AGES_10U_PLUS = ["10U", "12U", "14U"];
+const AGES_12U_PLUS = ["12U", "14U"];
+
+const allQuestions = [
   // ─── BASERUNNING ────────────────────────────────────
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're on first base with 1 out. The batter hits a ground ball to the shortstop. What do you do?",
     options: [
@@ -31,6 +36,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're on second base with 0 outs. A fly ball is hit to deep center field. What should you do?",
     options: [
@@ -56,6 +62,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on third base with 1 out. A ground ball is hit to the first baseman. What's the smart play?",
     options: [
@@ -81,6 +88,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and third, 1 out. You're on first. The batter hits a line drive right at the second baseman. What do you do?",
     options: [
@@ -106,6 +114,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "You're on second with 2 outs and a 3-2 count on the batter. The pitch is delivered. What should you be doing?",
     options: [
@@ -130,6 +139,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You hit a single to right field. As you round first base, you see the right fielder bobble the ball. What should you do?",
     options: [
@@ -154,6 +164,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on third with 1 out. A fly ball is hit to shallow left field. Should you tag up?",
     options: [
@@ -180,6 +191,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're playing shortstop. Runner on first, 1 out. A ground ball is hit to you. What's the play?",
     options: [
@@ -205,6 +217,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're the catcher. Runner on third, less than 2 outs. A ball is hit back to the pitcher. Where should you be?",
     options: [
@@ -230,6 +243,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're playing first base. Runners on first and second, 0 outs. A bunt is laid down toward you. What's your priority?",
     options: [
@@ -255,6 +269,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're the center fielder. There's a runner on second with 1 out. A single is hit to you. Where do you throw?",
     options: [
@@ -280,6 +295,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're the pitcher. After delivering a pitch, a ball is bunted right in front of you. Runner on first, 0 outs. What do you do?",
     options: [
@@ -305,6 +321,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Bases loaded, 1 out. Ground ball hit to you at third base. What's the ideal play?",
     options: [
@@ -330,6 +347,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're playing second base. Runner on first steals second. The catcher throws to you. The throw is slightly up the line toward first. How do you position for the tag?",
     options: [
@@ -355,6 +373,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're batting with a 3-0 count. Your coach has NOT given you the green light. What should you do?",
     options: [
@@ -378,6 +397,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runner on second, no outs. You're batting. What's your job as a hitter?",
     options: [
@@ -401,6 +421,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "It's a full count (3-2), 2 outs, runner on third. The pitch comes in and it looks borderline. What should you do?",
     options: [
@@ -424,6 +445,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're asked to lay down a sacrifice bunt. Runner on second, 0 outs. Where should you try to bunt the ball?",
     options: [
@@ -447,6 +469,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "The pitcher has thrown you 3 changeups in a row. You're down 0-2 in the count. What pitch are you looking for?",
     options: [
@@ -470,6 +493,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're the leadoff batter. First at-bat of the game. What's your main goal?",
     options: [
@@ -494,6 +518,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "The infield fly rule is called. What does this mean?",
     options: [
@@ -517,6 +542,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "What's the difference between a force out and a tag out?",
     options: [
@@ -540,6 +566,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "Runner on third, 1 out. A fly ball is caught in foul territory near the dugout. Can the runner tag up and score?",
     options: [
@@ -563,6 +590,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "Your team is on defense. There are 2 outs. Where should every fielder know the ball is going before the pitch?",
     options: [
@@ -586,6 +614,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Your team is losing by 1 run in the last inning. Runner on second, 1 out. You're coaching third base. The batter singles to left. Do you send the runner home?",
     options: [
@@ -610,6 +639,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Top of the 7th, tie game. You're the pitcher. Leadoff batter is up. What's your approach?",
     options: [
@@ -633,6 +663,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "What does 'backing up' mean in softball, and who should be doing it?",
     options: [
@@ -656,6 +687,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "How many outs are in a full inning of softball?",
     options: [
@@ -679,6 +711,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Runner on third, 1 out. Slow roller hit toward you at third base. You know you can't throw home in time. What do you do?",
     options: [
@@ -704,6 +737,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "You're in the on-deck circle. What should you be doing?",
     options: [
@@ -728,6 +762,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're on first base with 2 outs. The batter hits a fly ball to center field. What do you do?",
     options: [
@@ -753,6 +788,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on second base. The catcher drops a third strike and throws to first to get the batter. What should you do?",
     options: [
@@ -777,6 +813,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on first base. The pitcher picks you off — you're caught in a rundown between first and second. What's your strategy?",
     options: [
@@ -801,6 +838,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and third, 1 out. You're on first. Your coach calls a delayed steal. What does this mean?",
     options: [
@@ -825,6 +863,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You hit a ball to the outfield and you're running to first. Should you run through first base or round it?",
     options: [
@@ -850,6 +889,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're playing left field. A ball is hit to center field. The center fielder is going to catch it. What should you be doing?",
     options: [
@@ -875,6 +915,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're the shortstop. Pop fly hit into shallow left field. You, the third baseman, and the left fielder are all calling for it. Who has priority?",
     options: [
@@ -900,6 +941,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're playing right field. With nobody on base and 2 outs, a ground ball single is hit to you. Where do you throw?",
     options: [
@@ -925,6 +967,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "You're the catcher. Runner on first, 0 outs. The batter squares to bunt. The ball is bunted toward the third base line. Who covers third?",
     options: [
@@ -950,6 +993,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're the first baseman. A ground ball is hit to the second baseman with a runner on first. What's your responsibility?",
     options: [
@@ -975,6 +1019,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Tie game, bottom of the last inning. Runner on third, 1 out. Ground ball hit to you at shortstop. The ball is hit slowly. What do you do?",
     options: [
@@ -1001,6 +1046,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're batting with 2 strikes. The next pitch is in the dirt. What do you do?",
     options: [
@@ -1024,6 +1070,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runner on third, less than 2 outs. The infield is playing in (closer to home plate). How does this change your approach at the plate?",
     options: [
@@ -1047,6 +1094,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "advanced" as const,
+    ageGroups: ["14U"],
     scenarioText:
       "The pitcher keeps throwing you rise balls up in the zone and you keep swinging through them. What adjustment should you make?",
     options: [
@@ -1070,6 +1118,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You step into the batter's box. Where should your feet be positioned?",
     options: [
@@ -1093,6 +1142,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "You're a right-handed batter and you notice the defense has shifted toward the left side. What should you try to do?",
     options: [
@@ -1117,6 +1167,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "A batted ball hits the ground in fair territory and then rolls into foul territory before reaching first base. Is this a fair or foul ball?",
     options: [
@@ -1140,6 +1191,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "The batter hits a ball that bounces off the pitcher's glove and rolls toward first base. The first baseman picks it up and tags first. Is the batter out?",
     options: [
@@ -1164,6 +1216,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Runner on first, 1 out. The batter hits a ground ball to the shortstop who throws to second for the force. The runner from first slides hard into the second baseman to break up the double play. Is this legal in softball?",
     options: [
@@ -1188,6 +1241,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "What is a 'count' in softball?",
     options: [
@@ -1211,6 +1265,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Your team is on offense. The batter reaches first on an error by the shortstop. Does the batter get credit for a hit?",
     options: [
@@ -1235,6 +1290,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Bases loaded, 0 outs, tie game in the 6th inning. You're the coach. Do you bring the infield in?",
     options: [
@@ -1258,6 +1314,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "What is a 'walk' (base on balls) in softball?",
     options: [
@@ -1282,6 +1339,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're an outfielder. A ball is hit over your head. What's the correct way to go back on the ball?",
     options: [
@@ -1307,6 +1365,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're the pitcher. After you deliver the pitch, where should you be defensively?",
     options: [
@@ -1332,6 +1391,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "You're in a tournament and facing a new pitcher for the first time. In your first at-bat, what's your approach?",
     options: [
@@ -1355,6 +1415,7 @@ const seedQuestions = [
   {
     category: "hitting" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "Where should your eyes be focused when hitting?",
     options: [
@@ -1379,6 +1440,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on second base. The batter hits a ground ball to the shortstop. The shortstop fields it and looks at you. What do you do?",
     options: [
@@ -1404,6 +1466,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "You're running from home to first base. A ground ball is hit to the right side of the infield. Which side of the foul line should you run on?",
     options: [
@@ -1426,10 +1489,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — DROPPED THIRD STRIKE ─────────────────
+  // ─── DROPPED THIRD STRIKE ─────────────────────────────
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Two outs, nobody on base. The catcher drops strike three. What happens?",
     options: [
@@ -1453,6 +1517,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "One out, runner on first base. The catcher drops strike three. Can the batter run to first?",
     options: [
@@ -1476,6 +1541,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're the catcher. Two outs, runner on second. You drop strike three. What should you do?",
     options: [
@@ -1497,10 +1563,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — INFIELD FLY ──────────────────────────
+  // ─── INFIELD FLY ──────────────────────────────────────
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and second, one out. The batter pops up to the shortstop. The umpire calls 'Infield fly, batter is out!' The shortstop drops the ball. What happens?",
     options: [
@@ -1524,6 +1591,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and second, no outs. A pop fly goes up near the pitcher. When does the infield fly rule apply?",
     options: [
@@ -1547,6 +1615,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and second, one out. The umpire calls 'infield fly.' You're the runner on second. The ball drops in fair territory. Should you run?",
     options: [
@@ -1568,10 +1637,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — STEALING ─────────────────────────────
+  // ─── STEALING ─────────────────────────────────────────
   {
     category: "baserunning" as const,
     difficulty: "beginner" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on first base and want to steal second. In 12U fastpitch, when can you leave the base?",
     options: [
@@ -1595,6 +1665,7 @@ const seedQuestions = [
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on second base, one out. You want to steal third. What should you watch for before going?",
     options: [
@@ -1616,10 +1687,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — PITCHING ─────────────────────────────
+  // ─── PITCHING ─────────────────────────────────────────
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: ALL_AGES,
     scenarioText:
       "What is a 'crow hop' and why is it illegal in fastpitch softball?",
     options: [
@@ -1643,6 +1715,7 @@ const seedQuestions = [
   {
     category: "general" as const,
     difficulty: "intermediate" as const,
+    ageGroups: ["12U"],
     scenarioText:
       "In 12U fastpitch, what is the pitching distance from the rubber to home plate?",
     options: [
@@ -1664,10 +1737,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — FIELD DIMENSIONS & AWARENESS ─────────
+  // ─── FIELD DIMENSIONS & AWARENESS ─────────────────────
   {
     category: "fielding" as const,
     difficulty: "beginner" as const,
+    ageGroups: ["12U"],
     scenarioText:
       "In 12U softball, how far apart are the bases?",
     options: [
@@ -1689,10 +1763,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U RULES — COMMUNICATION DEVICE ─────────────────
+  // ─── COMMUNICATION DEVICE ─────────────────────────────
   {
     category: "general" as const,
     difficulty: "beginner" as const,
+    ageGroups: AGES_12U_PLUS,
     scenarioText:
       "Starting in 2026, coaches can use one-way communication devices to call pitches. Who wears the receiving device?",
     options: [
@@ -1714,10 +1789,11 @@ const seedQuestions = [
     },
   },
 
-  // ─── 12U SITUATIONS — GAME AWARENESS ──────────────────
+  // ─── GAME AWARENESS ──────────────────────────────────
   {
     category: "baserunning" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "You're on third base with one out. The batter hits a ground ball to the second baseman. The infield is playing back. What do you do?",
     options: [
@@ -1743,6 +1819,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "advanced" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runner on third, one out. You're playing first base. A ground ball is hit right to you. What's your priority?",
     options: [
@@ -1768,6 +1845,7 @@ const seedQuestions = [
   {
     category: "fielding" as const,
     difficulty: "intermediate" as const,
+    ageGroups: AGES_10U_PLUS,
     scenarioText:
       "Runners on first and third, no outs. The runner on first attempts to steal second. You're the catcher. What's the smart play?",
     options: [
@@ -1789,19 +1867,644 @@ const seedQuestions = [
       perspective: "catcher",
     },
   },
+
+  // ─── 8U QUESTIONS ──────────────────────────────────────
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U", "10U"],
+    scenarioText:
+      "In 8U softball, what size ball do you use?",
+    options: [
+      { id: "a", text: "12 inch" },
+      { id: "b", text: "11 inch" },
+      { id: "c", text: "10 inch" },
+      { id: "d", text: "9 inch" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "8U softball uses an 11-inch ball, which is smaller and easier for young players to grip and throw. When you move up to 12U, the ball gets bigger (12 inches).",
+    positions: ["all"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, the pitcher walks the batter (4 balls). What happens next in many 8U leagues?",
+    options: [
+      { id: "a", text: "The batter goes to first base like normal" },
+      { id: "b", text: "A coach comes in to pitch to the batter" },
+      { id: "c", text: "The batter is out" },
+      { id: "d", text: "The at-bat starts over" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In many 8U leagues, after the player-pitcher throws ball four, a coach steps in to pitch. The batter then gets a set number of pitches to put the ball in play. This keeps the game moving and gives batters more chances to hit!",
+    positions: ["all"],
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, can you steal bases?",
+    options: [
+      { id: "a", text: "Yes — steal anytime you want" },
+      { id: "b", text: "Stealing is very limited — often only one base per pitch, and you cannot steal home" },
+      { id: "c", text: "You can steal as many bases as you want" },
+      { id: "d", text: "There is no baserunning in 8U" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In 8U, stealing is very restricted. You usually can only advance one base per pitch, and stealing home is not allowed. During coach pitch, there is no stealing at all. These rules help keep the game fair while you're learning!",
+    positions: ["all"],
+    situation: {
+      runners: ["first"],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 2,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, is there an infield fly rule?",
+    options: [
+      { id: "a", text: "Yes — same as older age groups" },
+      { id: "b", text: "No — there is no infield fly rule in 8U" },
+      { id: "c", text: "Only in tournament play" },
+      { id: "d", text: "Only with bases loaded" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "There is NO infield fly rule in 8U. That means if a pop fly is dropped by an infielder, the ball is live and runners can be forced out. This rule starts at 10U. As a runner, stay alert on pop flies!",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 1,
+      count: { balls: 0, strikes: 0 },
+      inning: 3,
+      score: { us: 1, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, the catcher drops strike three. Is the batter out?",
+    options: [
+      { id: "a", text: "No — the batter can run to first" },
+      { id: "b", text: "Yes — the batter is out. The dropped third strike rule does not apply in 8U" },
+      { id: "c", text: "The pitch doesn't count" },
+      { id: "d", text: "Only with 2 outs" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In 8U, there is NO dropped third strike rule. If the batter strikes out, she is out — period. The catcher doesn't need to worry about throwing to first. The dropped third strike rule starts at 10U.",
+    positions: ["all"],
+  },
+  {
+    category: "hitting" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, can you bunt during coach pitch?",
+    options: [
+      { id: "a", text: "Yes — bunting is always allowed" },
+      { id: "b", text: "No — bunting is not allowed during coach pitch" },
+      { id: "c", text: "Only with 2 strikes" },
+      { id: "d", text: "Only if the coach says to" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In most 8U leagues, bunting is not allowed during coach pitch. The coach is throwing easy pitches for you to swing at and practice hitting. Bunting is allowed when the player is pitching, though!",
+    positions: ["all"],
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, the ball gets past the outfielder. Can you run around all the bases and score?",
+    options: [
+      { id: "a", text: "Yes — run as far as you can" },
+      { id: "b", text: "Usually you can only advance one extra base on an overthrow" },
+      { id: "c", text: "You must stop at the base you're going to" },
+      { id: "d", text: "Only on a home run" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In most 8U leagues, runners are limited to one extra base on an overthrow. This prevents younger players from running endlessly on errors. It keeps the game fair while everyone is still learning to throw accurately!",
+    positions: ["all"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "In 8U, how far is it from the pitching rubber to home plate?",
+    options: [
+      { id: "a", text: "30 feet" },
+      { id: "b", text: "35 feet" },
+      { id: "c", text: "40 feet" },
+      { id: "d", text: "43 feet" },
+    ],
+    correctOptionId: "a",
+    explanation:
+      "In 8U, the pitching distance is 30 feet — the shortest of any age group. As you move up: 10U is 35 feet, 12U is 40 feet, and 14U is 43 feet. The bases are always 60 feet apart.",
+    positions: ["all"],
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U"],
+    scenarioText:
+      "You're playing first base in 8U. A ground ball is hit to the shortstop. What's the most important thing for you to do?",
+    options: [
+      { id: "a", text: "Run toward the ball to help" },
+      { id: "b", text: "Get to the bag, give a big target with your glove, and keep your foot on first base" },
+      { id: "c", text: "Watch and wait" },
+      { id: "d", text: "Run to second base" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "Your job at first base is to be at the bag ready for the throw! Get there early, stretch toward the throw, keep your foot on the bag, and give a big target. At 8U, throws aren't always perfect — stretch and scoop to help your teammates out!",
+    positions: ["First Base"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 2,
+      score: { us: 0, them: 0 },
+      ballHitTo: "shortstop",
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U", "10U", "12U"],
+    scenarioText:
+      "How many innings are in a regulation 8U softball game?",
+    options: [
+      { id: "a", text: "5 innings" },
+      { id: "b", text: "6 innings" },
+      { id: "c", text: "7 innings" },
+      { id: "d", text: "4 innings" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "A regulation 8U game is 6 innings, just like 10U and 12U. Games at 14U go to 7 innings. Most 8U games also have a time limit (usually around 1 hour 30 minutes).",
+    positions: ["all"],
+  },
+
+  // ─── 10U QUESTIONS ──────────────────────────────────────
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U, the catcher drops strike three with 2 outs and nobody on base. What happens?",
+    options: [
+      { id: "a", text: "The batter is out — strike three is always an out" },
+      { id: "b", text: "The batter can run to first base" },
+      { id: "c", text: "The pitch doesn't count" },
+      { id: "d", text: "The batter gets another swing" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The dropped third strike rule IS in effect at 10U under USA Softball rules! With 2 outs, the batter can run to first whether or not it's occupied. The catcher must tag the batter or throw to first. This is different from 8U where the batter is simply out.",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 2,
+      count: { balls: 1, strikes: 2 },
+      inning: 4,
+      score: { us: 2, them: 1 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["8U", "10U"],
+    scenarioText:
+      "What size ball is used in 10U fastpitch?",
+    options: [
+      { id: "a", text: "12 inch" },
+      { id: "b", text: "11 inch" },
+      { id: "c", text: "10 inch" },
+      { id: "d", text: "9 inch" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "10U uses an 11-inch ball — the same size as 8U. When you move up to 12U, the ball changes to a 12-inch ball, which is bigger and heavier. Enjoy the smaller ball while you can!",
+    positions: ["all"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U, is the infield fly rule in effect?",
+    options: [
+      { id: "a", text: "No — that's only for 12U and up" },
+      { id: "b", text: "Yes — the infield fly rule applies starting at 10U" },
+      { id: "c", text: "Only in tournament play" },
+      { id: "d", text: "Only with bases loaded" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The infield fly rule starts at 10U! With runners on 1st and 2nd (or bases loaded) and less than 2 outs, if a fair fly ball can be caught by an infielder with ordinary effort, the batter is automatically out. This protects runners from intentional drops.",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 0,
+      count: { balls: 1, strikes: 0 },
+      inning: 3,
+      score: { us: 1, them: 0 },
+    },
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U, how many bases can you steal on a single pitch?",
+    options: [
+      { id: "a", text: "Unlimited — run as far as you can" },
+      { id: "b", text: "One base per pitch" },
+      { id: "c", text: "You can't steal in 10U" },
+      { id: "d", text: "Two bases per pitch" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In most 10U leagues, you can only steal one base per pitch. This means if you steal second, you have to wait for the next pitch to try for third. This rule changes at 12U where stealing is unlimited.",
+    positions: ["all"],
+    situation: {
+      runners: ["first"],
+      outs: 0,
+      count: { balls: 0, strikes: 1 },
+      inning: 2,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U fastpitch, how far is it from the pitcher's rubber to home plate?",
+    options: [
+      { id: "a", text: "30 feet" },
+      { id: "b", text: "35 feet" },
+      { id: "c", text: "40 feet" },
+      { id: "d", text: "43 feet" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The 10U pitching distance is 35 feet — 5 feet longer than 8U (30 ft) but shorter than 12U (40 ft). The bases are 60 feet apart, the same distance at all youth levels.",
+    positions: ["all"],
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U, when can a runner leave the base?",
+    options: [
+      { id: "a", text: "Anytime" },
+      { id: "b", text: "When the pitch leaves the pitcher's hand" },
+      { id: "c", text: "When the ball crosses home plate" },
+      { id: "d", text: "You can't leave until the ball is hit" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "Just like all youth fastpitch (8U through 14U), runners cannot leave the base until the pitch is released from the pitcher's hand. Leaving early results in the runner being called out. Time your jump!",
+    positions: ["all"],
+    situation: {
+      runners: ["second"],
+      outs: 1,
+      count: { balls: 1, strikes: 0 },
+      inning: 3,
+      score: { us: 0, them: 1 },
+    },
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "You're the catcher in 10U. Two outs, the batter swings and misses for strike three. The ball bounces in the dirt. What do you do?",
+    options: [
+      { id: "a", text: "Nothing — the batter is out automatically" },
+      { id: "b", text: "Block the ball and quickly tag the batter or throw to first" },
+      { id: "c", text: "Throw it back to the pitcher" },
+      { id: "d", text: "Wait for the umpire to call time" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In 10U, the dropped third strike rule is in effect! With 2 outs, the batter can run to first. You need to block the ball, pick it up, and either tag the batter or throw to first quickly. Don't assume she's out!",
+    positions: ["Catcher"],
+    situation: {
+      runners: [],
+      outs: 2,
+      count: { balls: 2, strikes: 2 },
+      inning: 5,
+      score: { us: 3, them: 2 },
+    },
+  },
+  {
+    category: "hitting" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "In 10U, you're batting with a 3-0 count. Your coach hasn't given you the green light. What should you do?",
+    options: [
+      { id: "a", text: "Swing at the next pitch no matter what" },
+      { id: "b", text: "Take the pitch — the pitcher is struggling with control" },
+      { id: "c", text: "Bunt" },
+      { id: "d", text: "Swing as hard as you can" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "Without the green light from your coach, take the pitch on 3-0. The pitcher has thrown 3 balls — she's having trouble finding the strike zone. Be patient and take the free base if she walks you. A walk is as good as a hit!",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 3, strikes: 0 },
+      inning: 2,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U", "12U", "14U"],
+    scenarioText:
+      "In 10U, the other team is ahead by 10 runs after 4 innings. What happens?",
+    options: [
+      { id: "a", text: "The game continues as normal" },
+      { id: "b", text: "The game ends — this is the mercy rule" },
+      { id: "c", text: "The losing team gets extra at-bats" },
+      { id: "d", text: "The umpire decides" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The mercy (or run) rule ends the game when one team is ahead by 10 or more runs after a set number of innings. This keeps games from becoming lopsided and demoralizing. It's good sportsmanship and part of the rules!",
+    positions: ["all"],
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["10U"],
+    scenarioText:
+      "You're playing shortstop in 10U. Runner on first, no outs. A ground ball is hit to you. Where's the best place to throw?",
+    options: [
+      { id: "a", text: "First base — always go to first" },
+      { id: "b", text: "Second base to start a double play" },
+      { id: "c", text: "Home plate" },
+      { id: "d", text: "Hold the ball" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "With a runner on first and no outs, go to second base first to get the lead runner and start a double play! Flip it to the second baseman covering second, and she relays to first. Getting two outs on one play is one of the best things in softball!",
+    positions: ["Shortstop"],
+    situation: {
+      runners: ["first"],
+      outs: 0,
+      count: { balls: 1, strikes: 1 },
+      inning: 3,
+      score: { us: 1, them: 0 },
+      ballHitTo: "shortstop",
+    },
+  },
+
+  // ─── 14U QUESTIONS ──────────────────────────────────────
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "In 14U fastpitch, how many innings are in a regulation game?",
+    options: [
+      { id: "a", text: "6 innings" },
+      { id: "b", text: "7 innings" },
+      { id: "c", text: "9 innings" },
+      { id: "d", text: "5 innings" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "14U plays 7 innings — one more than 8U, 10U, and 12U (which all play 6). This matches high school rules. The extra inning means games are longer and you need to manage energy and pitching differently.",
+    positions: ["all"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "In 14U, how far is the pitching rubber from home plate?",
+    options: [
+      { id: "a", text: "35 feet" },
+      { id: "b", text: "40 feet" },
+      { id: "c", text: "43 feet" },
+      { id: "d", text: "46 feet" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "The 14U pitching distance is 43 feet — the same as high school. This is 3 feet farther than 12U (40 ft). At 14U, pitchers throw harder and have more breaking pitches, so the extra distance gives batters a fraction more reaction time.",
+    positions: ["all"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "At 14U, the mercy rule kicks in at 15 runs after 3 innings or 10 runs after how many innings?",
+    options: [
+      { id: "a", text: "4 innings" },
+      { id: "b", text: "5 innings" },
+      { id: "c", text: "6 innings" },
+      { id: "d", text: "There is no mercy rule at 14U" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "At 14U, the two-tier mercy rule applies: 15 runs after 3 innings, or 10 runs after 5 innings. This is the standard for 12U and 14U. It keeps games competitive while allowing lopsided games to end early.",
+    positions: ["all"],
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "beginner" as const,
+    ageGroups: ["12U", "14U"],
+    scenarioText:
+      "In 14U, how many bases can you steal on a single pitch?",
+    options: [
+      { id: "a", text: "One base per pitch" },
+      { id: "b", text: "Unlimited — you can advance as many bases as possible" },
+      { id: "c", text: "Two bases maximum" },
+      { id: "d", text: "You can't steal in 14U" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "At 14U, base stealing is unlimited — just like 12U. You can steal multiple bases on a single pitch if the opportunity is there (like on a passed ball or wild pitch). Remember: you still can't leave the base until the pitch is released!",
+    positions: ["all"],
+    situation: {
+      runners: ["first"],
+      outs: 0,
+      count: { balls: 0, strikes: 1 },
+      inning: 3,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "hitting" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["12U", "14U"],
+    scenarioText:
+      "At 14U, pitchers throw harder and have more pitches. You're facing a pitcher with a good changeup. What's the key adjustment?",
+    options: [
+      { id: "a", text: "Swing harder to catch up" },
+      { id: "b", text: "Stay back on your back leg longer and let the ball travel deeper before committing to swing" },
+      { id: "c", text: "Always bunt against good pitchers" },
+      { id: "d", text: "Close your eyes and swing early" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "A changeup is designed to make you swing early. The key is to stay balanced on your back leg and let the ball get deeper in the zone before committing. If it's a changeup, you'll have time to adjust. If it's a fastball, you can still get to it. Patience beats speed changes!",
+    positions: ["all"],
+    situation: {
+      runners: ["second"],
+      outs: 1,
+      count: { balls: 1, strikes: 1 },
+      inning: 5,
+      score: { us: 2, them: 3 },
+    },
+  },
+  {
+    category: "general" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "In a 14U tournament game, it's the bottom of the 7th inning (the last inning). The home team is losing by 1 run with a runner on third and 2 outs. What's different about strategy in a 7-inning game?",
+    options: [
+      { id: "a", text: "Nothing — it's the same as a 6-inning game" },
+      { id: "b", text: "The extra inning gives you more chances to come back, so earlier innings aren't as urgent" },
+      { id: "c", text: "You should be more aggressive from the start" },
+      { id: "d", text: "There are fewer outs to work with" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "In a 7-inning game, you have 3 more outs (one more full inning) compared to 12U's 6-inning game. This means you can be slightly more patient earlier — a 1-run deficit in the 4th isn't as urgent. But in the 7th, it's your last chance. Manage the game differently with the extra inning!",
+    positions: ["all"],
+    situation: {
+      runners: ["third"],
+      outs: 2,
+      count: { balls: 1, strikes: 0 },
+      inning: 7,
+      score: { us: 3, them: 4 },
+    },
+  },
+  {
+    category: "fielding" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "At 14U, batters hit the ball harder and farther. You're an outfielder. Where should you position yourself compared to 12U?",
+    options: [
+      { id: "a", text: "Same depth as 12U — nothing changes" },
+      { id: "b", text: "Play deeper — balls travel farther off the bat at 14U" },
+      { id: "c", text: "Play shallower — you need to be closer to the infield" },
+      { id: "d", text: "Stand on the warning track" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "At 14U, players are stronger and hit the ball farther. Outfielders should adjust their depth deeper than in 12U. It's easier to come in on a ball hit in front of you than to run back on one hit over your head. Know your hitters and adjust!",
+    positions: ["Left Field", "Center Field", "Right Field"],
+  },
+  {
+    category: "general" as const,
+    difficulty: "advanced" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "At 14U, you're the coach. Your pitcher has thrown 5 innings and her speed is dropping. The game is 7 innings. What's your strategy?",
+    options: [
+      { id: "a", text: "Leave her in — she started, she finishes" },
+      { id: "b", text: "Manage her workload — consider bringing in a reliever for the last 2 innings" },
+      { id: "c", text: "Pull her immediately after any base runner" },
+      { id: "d", text: "Let the team vote" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "At 14U with 7-inning games, pitching management becomes more important. If your starter is fading, a fresh arm for the last 2 innings can be the difference. Protect young arms while staying competitive. This is where having pitching depth matters!",
+    positions: ["Pitcher"],
+    situation: {
+      runners: ["first", "second"],
+      outs: 0,
+      count: { balls: 0, strikes: 0 },
+      inning: 6,
+      score: { us: 4, them: 3 },
+    },
+  },
+  {
+    category: "hitting" as const,
+    difficulty: "advanced" as const,
+    ageGroups: ["14U"],
+    scenarioText:
+      "At 14U, you face a pitcher throwing riseballs, dropballs, and changeups. She starts you with a riseball for strike one, then a changeup for ball one. What pitch should you look for next?",
+    options: [
+      { id: "a", text: "Another riseball — pitchers always go back to what worked" },
+      { id: "b", text: "Sit on the fastball/riseball but be ready to adjust to off-speed" },
+      { id: "c", text: "Guess changeup and swing early" },
+      { id: "d", text: "Just react to whatever comes" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "At 14U, pitchers have multiple pitches. The smart approach is to sit on the pitch you can drive (usually the fastball/riseball) while staying balanced enough to adjust to off-speed. If you guess off-speed and get a fastball, you're late. If you time fastball and get a changeup, you can still adjust by staying back.",
+    positions: ["all"],
+    situation: {
+      runners: [],
+      outs: 0,
+      count: { balls: 1, strikes: 1 },
+      inning: 3,
+      score: { us: 0, them: 0 },
+    },
+  },
+  {
+    category: "baserunning" as const,
+    difficulty: "intermediate" as const,
+    ageGroups: ["12U", "14U"],
+    scenarioText:
+      "At 14U, runners on first and third with 1 out. The runner on first attempts to steal second. You're the runner on third. What should you watch for?",
+    options: [
+      { id: "a", text: "Just stay at third no matter what" },
+      { id: "b", text: "Watch the catcher's throw — if she throws to second, read whether you can score" },
+      { id: "c", text: "Automatically run home when the runner steals" },
+      { id: "d", text: "Go back to touch third again" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "The first-and-third steal is a staple at 14U. When the runner steals second, the catcher has a decision to make. If she throws to second, you may be able to score — but read the play! If the middle infielder cuts it off, stay. If the throw goes through to second, you might have your chance. Be smart, not automatic.",
+    positions: ["all"],
+    situation: {
+      runners: ["first", "third"],
+      outs: 1,
+      count: { balls: 0, strikes: 1 },
+      inning: 5,
+      score: { us: 2, them: 2 },
+    },
+  },
 ];
 
 async function seed() {
   console.log("Seeding questions...");
-
-  for (const q of seedQuestions) {
-    await db
-      .insert(questions)
-      .values(q)
-      .onConflictDoNothing();
+  for (const q of allQuestions) {
+    await db.insert(questions).values(q).onConflictDoNothing();
   }
-
-  console.log(`Seeded ${seedQuestions.length} questions.`);
+  console.log(`Seeded ${allQuestions.length} questions.`);
 }
 
 seed()

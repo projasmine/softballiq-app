@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { User, Shield } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -56,12 +57,15 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Titan Tournament
+          </p>
           <CardTitle className="text-2xl font-bold">
             Join Softball IQ
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Build your softball IQ
+            Create your account
           </p>
         </CardHeader>
         <CardContent>
@@ -114,7 +118,7 @@ export default function SignupPage() {
                       : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <span className="text-2xl block mb-1">⚾</span>
+                  <User className="h-6 w-6 mx-auto mb-1" />
                   <span className="font-medium text-sm">Player</span>
                 </button>
                 <button
@@ -126,7 +130,7 @@ export default function SignupPage() {
                       : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <span className="text-2xl block mb-1">📋</span>
+                  <Shield className="h-6 w-6 mx-auto mb-1" />
                   <span className="font-medium text-sm">Coach</span>
                 </button>
               </div>

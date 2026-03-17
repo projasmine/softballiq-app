@@ -35,6 +35,7 @@ export default function OnboardingPage() {
   const [joinCode, setJoinCode] = useState("");
   const [createdCode, setCreatedCode] = useState("");
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
+  const [ageGroup, setAgeGroup] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,7 +43,7 @@ export default function OnboardingPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await createTeam(teamName);
+      const result = await createTeam(teamName, ageGroup || undefined);
       if (result.success) {
         setCreatedCode(result.joinCode!);
         setStep(3);
@@ -104,8 +105,27 @@ export default function OnboardingPage() {
                   <Input
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
-                    placeholder="e.g. Thunder 12U"
+                    placeholder="e.g. Thunder"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Age Group</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {["8U", "10U", "12U", "14U"].map((age) => (
+                      <button
+                        key={age}
+                        type="button"
+                        onClick={() => setAgeGroup(age)}
+                        className={`p-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
+                          ageGroup === age
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        {age}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 {error && (
                   <p className="text-sm text-red-500 text-center">{error}</p>
@@ -114,7 +134,7 @@ export default function OnboardingPage() {
                   onClick={handleCreateTeam}
                   className="w-full"
                   size="lg"
-                  disabled={!teamName || loading}
+                  disabled={!teamName || !ageGroup || loading}
                 >
                   {loading ? "Creating..." : "Create Team"}
                 </Button>

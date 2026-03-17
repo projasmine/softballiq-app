@@ -96,13 +96,17 @@ export async function signOut() {
 }
 
 // ─── Team Actions ──────────────────────────────────────
-export async function createTeam(name: string) {
+export async function createTeam(name: string, ageGroup?: string) {
   const userId = await requireUserId();
 
   const joinCode = generateJoinCode();
+  const validAgeGroups = ["8U", "10U", "12U", "14U"] as const;
+  const age = validAgeGroups.includes(ageGroup as typeof validAgeGroups[number])
+    ? (ageGroup as typeof validAgeGroups[number])
+    : "12U";
   const [team] = await db
     .insert(teams)
-    .values({ name, joinCode, createdBy: userId })
+    .values({ name, joinCode, createdBy: userId, ageGroup: age })
     .returning();
 
   await db.insert(teamMembers).values({
@@ -202,10 +206,25 @@ export async function startDailyRep() {
     recentQuestionIds = recentAnswers.map((a) => a.questionId);
   }
 
-  // Get 5 questions, preferring position-relevant ones
+  // Get team age group for filtering
+  let teamAgeGroup: string | null = null;
+  if (membership?.teamId) {
+    const [team] = await db
+      .select({ ageGroup: teams.ageGroup })
+      .from(teams)
+      .where(eq(teams.id, membership.teamId))
+      .limit(1);
+    teamAgeGroup = team?.ageGroup ?? null;
+  }
+
+  // Get 5 questions, preferring position-relevant ones, filtered by age group
+  const ageFilter = teamAgeGroup
+    ? sql`${questions.ageGroups} @> ${JSON.stringify([teamAgeGroup])}::jsonb`
+    : undefined;
   let questionPool = await db
     .select()
     .from(questions)
+    .where(ageFilter)
     .orderBy(sql`RANDOM()`)
     .limit(20);
 
@@ -632,6 +651,7 @@ export async function getDashboardData() {
       role: teamMembers.role,
       teamName: teams.name,
       joinCode: teams.joinCode,
+      ageGroup: teams.ageGroup,
     })
     .from(teamMembers)
     .innerJoin(teams, eq(teams.id, teamMembers.teamId))

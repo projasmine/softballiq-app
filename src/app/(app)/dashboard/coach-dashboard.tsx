@@ -11,7 +11,7 @@ import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
 interface CoachDashboardProps {
   data: {
     profile: { displayName: string };
-    membership: { teamName: string; joinCode: string; teamId: string } | null;
+    membership: { teamName: string; joinCode: string; teamId: string; ageGroup?: string | null } | null;
     recentAttempts: {
       id: string;
       type: string;
@@ -43,9 +43,16 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Coach Dashboard</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold">Coach Dashboard</h1>
+          {membership?.ageGroup && (
+            <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+              {membership.ageGroup}
+            </Badge>
+          )}
+        </div>
         {membership && (
           <p className="text-sm text-muted-foreground">
             {membership.teamName}
@@ -58,7 +65,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
           {/* Join Code */}
           <Card>
             <CardContent className="pt-4 space-y-2">
-              <p className="text-sm text-muted-foreground">Team Join Code</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Team Join Code</p>
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-mono font-bold tracking-widest flex-1">
                   {membership.joinCode}
@@ -81,7 +88,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                 href="/team"
                 className="flex flex-col items-center gap-2"
               >
-                <Users className="h-6 w-6" />
+                <Users className="h-5 w-5" />
                 <span className="text-xs">View Roster</span>
               </Link>
             </Button>
@@ -90,16 +97,16 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                 href="/assignments/new"
                 className="flex flex-col items-center gap-2"
               >
-                <Plus className="h-6 w-6" />
+                <Plus className="h-5 w-5" />
                 <span className="text-xs">New Assignment</span>
               </Link>
             </Button>
           </div>
 
           {/* Recent Assignments */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm">Assignments</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Assignments</h3>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/assignments">View All</Link>
               </Button>
@@ -122,7 +129,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                             {a.difficultyFilter ? ` · ${a.difficultyFilter}` : ""}
                           </p>
                         </div>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px]">
                           {formatRelativeDate(a.createdAt)}
                         </Badge>
                       </div>
@@ -133,7 +140,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="pt-4 text-center">
-                  <ClipboardList className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <ClipboardList className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">
                     Create assignments to help your team learn
                   </p>

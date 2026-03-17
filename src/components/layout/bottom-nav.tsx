@@ -43,25 +43,18 @@ export function BottomNav({ role }: { role: "player" | "coach" }) {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 py-2 px-3 min-w-[56px] transition-colors",
+                "flex flex-col items-center gap-0.5 py-2.5 px-3 min-w-[56px] transition-colors",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <div
-                className={cn(
-                  "rounded-full p-1.5 transition-colors",
-                  active && "bg-primary/15"
-                )}
-              >
-                <Icon
-                  className="h-5 w-5"
-                  strokeWidth={active ? 2.5 : 1.5}
-                />
-              </div>
+              <Icon
+                className="h-5 w-5"
+                strokeWidth={active ? 2.5 : 1.5}
+              />
               <span
                 className={cn(
                   "text-[10px]",
-                  active ? "font-bold" : "font-medium"
+                  active ? "font-semibold" : "font-normal"
                 )}
               >
                 {label}

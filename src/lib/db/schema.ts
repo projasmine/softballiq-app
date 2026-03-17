@@ -30,6 +30,12 @@ export const categoryEnum = pgEnum("category", [
   "hitting",
   "general",
 ]);
+export const ageGroupEnum = pgEnum("age_group", [
+  "8U",
+  "10U",
+  "12U",
+  "14U",
+]);
 
 // ─── Profiles ───────────────────────────────────────────
 export const profiles = pgTable("profiles", {
@@ -52,6 +58,7 @@ export const profiles = pgTable("profiles", {
 export const teams = pgTable("teams", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
+  ageGroup: ageGroupEnum("age_group").notNull().default("12U"),
   joinCode: varchar("join_code", { length: 8 }).notNull().unique(),
   createdBy: uuid("created_by")
     .references(() => profiles.id)
@@ -96,6 +103,7 @@ export const questions = pgTable("questions", {
   id: uuid("id").defaultRandom().primaryKey(),
   category: categoryEnum("category").notNull(),
   difficulty: difficultyEnum("difficulty").notNull().default("beginner"),
+  ageGroups: jsonb("age_groups").$type<string[]>().notNull().default(["8U", "10U", "12U", "14U"]),
   scenarioText: text("scenario_text").notNull(),
   options: jsonb("options").$type<QuestionOption[]>().notNull(),
   correctOptionId: text("correct_option_id").notNull(),

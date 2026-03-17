@@ -40,7 +40,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Titan Tournament
+          </p>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <p className="text-sm text-muted-foreground">
             Sign in to Softball IQ

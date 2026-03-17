@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { QuestionCard } from "@/components/quiz/question-card";
+import { Badge } from "@/components/ui/badge";
 import type { QuestionOption, Situation } from "@/lib/db/schema";
 import { Loader2 } from "lucide-react";
+
+const AGE_GROUPS = ["8U", "10U", "12U", "14U"] as const;
 
 type Question = {
   id: string;
@@ -28,20 +31,34 @@ type AnswerRecord = {
 
 export default function PlayPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetch("/api/questions/random")
+  const startQuiz = (age: string) => {
+    setAgeGroup(age);
+    setLoading(true);
+    setError("");
+    fetch(`/api/questions/random?ageGroup=${age}`)
       .then((res) => res.json())
-      .then((data) => setQuestions(data))
-      .catch(() => setError("Failed to load questions"))
+      .then((data) => {
+        if (data.length === 0) {
+          setError("No questions available for this age group yet.");
+          setAgeGroup(null);
+        } else {
+          setQuestions(data);
+        }
+      })
+      .catch(() => {
+        setError("Failed to load questions");
+        setAgeGroup(null);
+      })
       .finally(() => setLoading(false));
-  }, []);
+  };
 
   const handleAnswer = (optionId: string, _responseTimeMs: number) => {
     const q = questions[currentIndex];
@@ -74,6 +91,56 @@ export default function PlayPage() {
     }
   };
 
+  // Age group selector
+  if (!ageGroup || questions.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl font-bold">Quick Play</h1>
+          <p className="text-sm text-muted-foreground">
+            Select your age group to start
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {AGE_GROUPS.map((age) => (
+                <button
+                  key={age}
+                  onClick={() => startQuiz(age)}
+                  className="p-6 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-center space-y-1"
+                >
+                  <span className="text-2xl font-bold">{age}</span>
+                  <p className="text-xs text-muted-foreground">
+                    {age === "8U" && "Coach/player pitch"}
+                    {age === "10U" && "Player pitch, limited stealing"}
+                    {age === "12U" && "Standard fastpitch rules"}
+                    {age === "14U" && "7-inning games"}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+
+            <div className="text-center pt-2">
+              <p className="text-xs text-muted-foreground">
+                Join a team to track your stats and compete on the leaderboard.
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -82,12 +149,10 @@ export default function PlayPage() {
     );
   }
 
-  if (error || questions.length === 0) {
+  if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">
-          {error || "No questions available"}
-        </p>
+        <p className="text-muted-foreground">{error}</p>
       </div>
     );
   }
@@ -96,7 +161,12 @@ export default function PlayPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">Quick Play</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-bold">Quick Play</h1>
+        <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+          {ageGroup}
+        </Badge>
+      </div>
       <QuestionCard
         key={question.id}
         questionNumber={currentIndex + 1}
@@ -113,7 +183,7 @@ export default function PlayPage() {
       />
       <div className="text-center pt-2">
         <p className="text-xs text-muted-foreground">
-          Join a team to track your stats and compete on the leaderboard!
+          Join a team to track your stats and compete on the leaderboard.
         </p>
       </div>
     </div>

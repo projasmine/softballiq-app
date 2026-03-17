@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 export default function PublicLayout({
   children,
@@ -9,9 +10,14 @@ export default function PublicLayout({
     <div className="min-h-screen">
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="font-extrabold text-lg tracking-tight">
-            Softball <span className="text-primary">IQ</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/" className="font-bold text-lg tracking-tight">
+              Softball IQ
+            </Link>
+            <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+              12U
+            </Badge>
+          </div>
           <div className="flex gap-3 text-sm">
             <Link
               href="/join"
