@@ -223,9 +223,11 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
               </div>
 
               {isCoach && (
-                <p className="text-xs text-muted-foreground">
-                  {completionCount} completed
-                </p>
+                <Button asChild size="sm" variant="outline" className="w-full">
+                  <Link href={`/assignments/${assignment.id}`}>
+                    {completionCount} completed &mdash; View Details
+                  </Link>
+                </Button>
               )}
 
               {!isComplete && !isCoach && (

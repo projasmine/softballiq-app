@@ -1375,6 +1375,90 @@ export async function resetQuestionOverride(teamId: string, questionId: string) 
   return { success: true };
 }
 
+// ─── Assignment Detail Actions ───────────────────────────
+export async function getAssignmentDetails(assignmentId: string) {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const userId = session.user.id;
+
+  // Verify the user is a coach
+  const [coachMembership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach")))
+    .limit(1);
+  if (!coachMembership) return null;
+
+  // Get the assignment
+  const [assignment] = await db
+    .select()
+    .from(assignments)
+    .where(
+      and(
+        eq(assignments.id, assignmentId),
+        eq(assignments.teamId, coachMembership.teamId)
+      )
+    )
+    .limit(1);
+  if (!assignment) return null;
+
+  // Get all players on the team
+  const players = await db
+    .select({
+      userId: teamMembers.userId,
+      displayName: profiles.displayName,
+    })
+    .from(teamMembers)
+    .innerJoin(profiles, eq(profiles.id, teamMembers.userId))
+    .where(
+      and(
+        eq(teamMembers.teamId, coachMembership.teamId),
+        eq(teamMembers.role, "player")
+      )
+    );
+
+  // Get completions for this assignment
+  const completions = await db
+    .select()
+    .from(assignmentCompletions)
+    .where(eq(assignmentCompletions.assignmentId, assignmentId));
+
+  const playerStatuses = players.map((player) => {
+    const completion = completions.find((c) => c.userId === player.userId);
+    let status: "completed" | "late" | "not_started" = "not_started";
+
+    if (completion) {
+      if (
+        assignment.dueDate &&
+        completion.completedAt > assignment.dueDate
+      ) {
+        status = "late";
+      } else {
+        status = "completed";
+      }
+    }
+
+    return {
+      userId: player.userId,
+      displayName: player.displayName,
+      status,
+      score: completion?.score ?? null,
+      completedAt: completion?.completedAt ?? null,
+    };
+  });
+
+  // Sort: not started first, then late, then completed
+  const order = { not_started: 0, late: 1, completed: 2 };
+  playerStatuses.sort((a, b) => order[a.status] - order[b.status]);
+
+  return {
+    assignment,
+    players: playerStatuses,
+    totalPlayers: players.length,
+    completedCount: completions.length,
+  };
+}
+
 // ─── Study Mode Actions ─────────────────────────────────
 export async function getWrongQuestionsSummary() {
   const session = await auth();
