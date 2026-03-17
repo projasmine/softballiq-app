@@ -62,7 +62,7 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
               <h2 className="font-semibold">Daily Rep</h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              5 quick questions to keep your game IQ sharp. Step up to the plate!
+              5 quick questions to keep your softball IQ sharp. Step up to the plate!
             </p>
             <Button asChild className="w-full" size="lg">
               <Link href="/daily-rep">

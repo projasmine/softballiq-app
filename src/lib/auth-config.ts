@@ -17,7 +17,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         const mode = credentials?.mode as string | undefined;
 
-        // Guest sign-in: look up by profile ID, no password
+        // Player sign-in: look up by profile ID, no password needed
+        // Used by the /join name-pick flow for coach-added players
         if (mode === "guest") {
           const guestId = credentials?.guestId as string | undefined;
           if (!guestId) return null;
@@ -29,10 +30,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             .limit(1);
 
           if (!user || user.passwordHash) return null;
-
-          // Only allow if profile was created within the last 60 seconds
-          const age = Date.now() - new Date(user.createdAt).getTime();
-          if (age > 60_000) return null;
 
           return {
             id: user.id,

@@ -9,10 +9,10 @@ export default function LandingPage() {
       <div className="max-w-lg mx-auto px-4 py-12 text-center space-y-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-extrabold tracking-tight">
-            Fast Pitch <span className="text-primary">IQ</span>
+            Softball <span className="text-primary">IQ</span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Build your softball game IQ, one play at a time
+            Build your softball IQ, one play at a time
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function LandingPage() {
         </div>
 
         <p className="text-xs text-muted-foreground pt-4">
-          Built for 12U girls&apos; fastpitch softball
+          Built for girls&apos; softball
         </p>
       </div>
     </div>

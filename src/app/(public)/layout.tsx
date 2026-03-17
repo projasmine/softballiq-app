@@ -10,7 +10,7 @@ export default function PublicLayout({
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="font-extrabold text-lg tracking-tight">
-            Fast Pitch <span className="text-primary">IQ</span>
+            Softball <span className="text-primary">IQ</span>
           </Link>
           <div className="flex gap-3 text-sm">
             <Link

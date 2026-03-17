@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, Target, Flame, ChevronRight } from "lucide-react";
+import { Copy, Check, Target, Flame, ChevronRight, Plus, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { addPlayerToRoster } from "@/app/actions";
+import { useRouter } from "next/navigation";
 
 interface TeamRosterViewProps {
   members: {
@@ -23,12 +26,32 @@ interface TeamRosterViewProps {
 }
 
 export function TeamRosterView({ members, joinCode }: TeamRosterViewProps) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [playerName, setPlayerName] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState("");
 
   const copyCode = () => {
     navigator.clipboard.writeText(joinCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleAddPlayer = async () => {
+    if (!playerName.trim()) return;
+    setAdding(true);
+    setError("");
+    try {
+      await addPlayerToRoster(playerName);
+      setPlayerName("");
+      setShowAddPlayer(false);
+      router.refresh();
+    } catch {
+      setError("Failed to add player");
+    }
+    setAdding(false);
   };
 
   const players = members.filter((m) => m.role === "player");
@@ -67,14 +90,45 @@ export function TeamRosterView({ members, joinCode }: TeamRosterViewProps) {
 
       {/* Players */}
       <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Players ({players.length})
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Players ({players.length})
+          </h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAddPlayer(!showAddPlayer)}
+          >
+            <UserPlus className="h-4 w-4 mr-1" />
+            Add Player
+          </Button>
+        </div>
+
+        {/* Add Player Form */}
+        {showAddPlayer && (
+          <Card>
+            <CardContent className="pt-3 pb-3 space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  placeholder="Player name"
+                  onKeyDown={(e) => e.key === "Enter" && handleAddPlayer()}
+                />
+                <Button onClick={handleAddPlayer} disabled={!playerName.trim() || adding} size="sm">
+                  {adding ? "..." : <Plus className="h-4 w-4" />}
+                </Button>
+              </div>
+              {error && <p className="text-xs text-red-500">{error}</p>}
+            </CardContent>
+          </Card>
+        )}
+
         {players.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="pt-4 text-center">
               <p className="text-sm text-muted-foreground">
-                No players yet. Share the join code!
+                No players yet. Add players above so they can find their name when joining!
               </p>
             </CardContent>
           </Card>
