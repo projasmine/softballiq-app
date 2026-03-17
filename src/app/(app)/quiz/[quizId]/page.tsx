@@ -57,13 +57,14 @@ export default function QuizPage() {
     init();
   }, [quizId]);
 
-  const handleAnswer = async (optionId: string) => {
+  const handleAnswer = async (optionId: string, responseTimeMs: number) => {
     if (!attemptId) return;
     try {
       const result = await submitAnswer(
         attemptId,
         questions[currentIndex].id,
-        optionId
+        optionId,
+        responseTimeMs
       );
       return result?.isCorrect ?? false;
     } catch {

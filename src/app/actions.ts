@@ -260,7 +260,8 @@ export async function startDailyRep() {
 export async function submitAnswer(
   attemptId: string,
   questionId: string,
-  selectedOptionId: string
+  selectedOptionId: string,
+  responseTimeMs?: number
 ) {
   const userId = await requireUserId();
 
@@ -313,6 +314,7 @@ export async function submitAnswer(
     questionId,
     selectedOptionId,
     isCorrect,
+    responseTimeMs: responseTimeMs ?? null,
   });
 
   return { isCorrect };
@@ -762,6 +764,27 @@ export async function getLeaderboardData() {
         .where(eq(dailyStreaks.userId, member.userId))
         .limit(1);
 
+      // Average response time for correct answers
+      const responseTimes = await db
+        .select({ responseTimeMs: quizAnswers.responseTimeMs })
+        .from(quizAnswers)
+        .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
+        .where(
+          and(
+            eq(quizAttempts.userId, member.userId),
+            eq(quizAnswers.isCorrect, true),
+            sql`${quizAnswers.responseTimeMs} IS NOT NULL`
+          )
+        );
+
+      const validTimes = responseTimes
+        .map((r) => r.responseTimeMs)
+        .filter((t): t is number => t !== null);
+      const avgResponseTimeMs =
+        validTimes.length > 0
+          ? Math.round(validTimes.reduce((a, b) => a + b, 0) / validTimes.length)
+          : null;
+
       return {
         userId: member.userId,
         displayName: member.displayName,
@@ -769,6 +792,7 @@ export async function getLeaderboardData() {
         totalQuestions,
         accuracy: totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0,
         currentStreak: streak?.currentStreak ?? 0,
+        avgResponseTimeMs,
       };
     })
   );
@@ -1426,6 +1450,34 @@ export async function getAssignmentDetails(assignmentId: string) {
     .from(assignmentCompletions)
     .where(eq(assignmentCompletions.assignmentId, assignmentId));
 
+  // Get avg response times per attempt for completed players
+  const attemptIds = completions
+    .map((c) => c.attemptId)
+    .filter((id): id is string => id !== null);
+  const responseTimes =
+    attemptIds.length > 0
+      ? await db
+          .select({
+            attemptId: quizAnswers.attemptId,
+            responseTimeMs: quizAnswers.responseTimeMs,
+          })
+          .from(quizAnswers)
+          .where(inArray(quizAnswers.attemptId, attemptIds))
+      : [];
+
+  const avgTimeByAttempt = new Map<string, number | null>();
+  for (const attemptId of attemptIds) {
+    const times = responseTimes
+      .filter((r) => r.attemptId === attemptId && r.responseTimeMs !== null)
+      .map((r) => r.responseTimeMs!);
+    avgTimeByAttempt.set(
+      attemptId,
+      times.length > 0
+        ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
+        : null
+    );
+  }
+
   const playerStatuses = players.map((player) => {
     const completion = completions.find((c) => c.userId === player.userId);
     let status: "completed" | "late" | "not_started" = "not_started";
@@ -1447,6 +1499,9 @@ export async function getAssignmentDetails(assignmentId: string) {
       status,
       score: completion?.score ?? null,
       completedAt: completion?.completedAt ?? null,
+      avgResponseTimeMs: completion?.attemptId
+        ? avgTimeByAttempt.get(completion.attemptId) ?? null
+        : null,
     };
   });
 

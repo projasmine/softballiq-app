@@ -21,7 +21,7 @@ interface QuestionCardProps {
   situation?: Situation | null;
   playerPosition?: string;
   timeLimit?: number | null;
-  onAnswer: (optionId: string) => void;
+  onAnswer: (optionId: string, responseTimeMs: number) => void;
   onNext: () => void;
 }
 
@@ -46,15 +46,17 @@ export function QuestionCard({
     timeLimit ?? null
   );
   const submittingRef = useRef(false);
+  const startTimeRef = useRef(Date.now());
 
   const handleSelect = useCallback(
     (optionId: string) => {
       if (answered || submittingRef.current) return;
       submittingRef.current = true;
+      const responseTimeMs = Date.now() - startTimeRef.current;
       setSelectedId(optionId);
       setAnswered(true);
       setTimeLeft(null);
-      onAnswer(optionId);
+      onAnswer(optionId, responseTimeMs);
     },
     [answered, onAnswer]
   );

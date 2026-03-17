@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Flame, Target } from "lucide-react";
+import { Trophy, Flame, Target, Zap } from "lucide-react";
 
 interface LeaderboardViewProps {
   data: {
@@ -13,6 +13,7 @@ interface LeaderboardViewProps {
       totalQuestions: number;
       accuracy: number;
       currentStreak: number;
+      avgResponseTimeMs: number | null;
     }[];
     teamName: string;
   } | null;
@@ -66,6 +67,12 @@ export function LeaderboardView({ data }: LeaderboardViewProps) {
                   <Flame className="h-3 w-3 text-orange-500" />
                   {player.currentStreak}d
                 </span>
+                {player.avgResponseTimeMs !== null && (
+                  <span className="flex items-center gap-1">
+                    <Zap className="h-3 w-3 text-yellow-500" />
+                    {(player.avgResponseTimeMs / 1000).toFixed(1)}s
+                  </span>
+                )}
               </div>
             </div>
             <div className="text-right">

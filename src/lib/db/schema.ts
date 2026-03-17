@@ -159,6 +159,7 @@ export const quizAnswers = pgTable("quiz_answers", {
     .notNull(),
   selectedOptionId: text("selected_option_id").notNull(),
   isCorrect: boolean("is_correct").notNull(),
+  responseTimeMs: integer("response_time_ms"),
   answeredAt: timestamp("answered_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

@@ -43,7 +43,7 @@ export default function PlayPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleAnswer = (optionId: string) => {
+  const handleAnswer = (optionId: string, _responseTimeMs: number) => {
     const q = questions[currentIndex];
     const isCorrect = optionId === q.correctOptionId;
     if (isCorrect) setScore((s) => s + 1);

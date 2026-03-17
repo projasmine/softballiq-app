@@ -2,7 +2,7 @@ import { getAssignmentDetails } from "@/app/actions";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, Zap } from "lucide-react";
 import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -112,6 +112,12 @@ export default async function AssignmentDetailPage({
                 <div className="flex items-center gap-2">
                   {player.status === "completed" && (
                     <>
+                      {player.avgResponseTimeMs !== null && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                          <Zap className="h-3 w-3 text-yellow-500" />
+                          {(player.avgResponseTimeMs / 1000).toFixed(1)}s
+                        </span>
+                      )}
                       <span className="text-sm font-medium">
                         {player.score}/{assignment.questionCount}
                       </span>
@@ -120,6 +126,12 @@ export default async function AssignmentDetailPage({
                   )}
                   {player.status === "late" && (
                     <>
+                      {player.avgResponseTimeMs !== null && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                          <Zap className="h-3 w-3 text-yellow-500" />
+                          {(player.avgResponseTimeMs / 1000).toFixed(1)}s
+                        </span>
+                      )}
                       <span className="text-sm font-medium">
                         {player.score}/{assignment.questionCount}
                       </span>

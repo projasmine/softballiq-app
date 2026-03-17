@@ -70,13 +70,14 @@ export default function StudyModePage() {
     }
   };
 
-  const handleAnswer = async (optionId: string) => {
+  const handleAnswer = async (optionId: string, responseTimeMs: number) => {
     if (!attemptId) return;
     try {
       const result = await submitAnswer(
         attemptId,
         questions[currentIndex].id,
-        optionId
+        optionId,
+        responseTimeMs
       );
       if (result?.isCorrect) setScore((s) => s + 1);
       return result?.isCorrect ?? false;
