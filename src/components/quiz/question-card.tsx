@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SoftballField } from "./softball-field";
@@ -20,6 +20,7 @@ interface QuestionCardProps {
   explanation: string;
   situation?: Situation | null;
   playerPosition?: string;
+  timeLimit?: number | null;
   onAnswer: (optionId: string) => void;
   onNext: () => void;
 }
@@ -35,20 +36,45 @@ export function QuestionCard({
   explanation,
   situation,
   playerPosition,
+  timeLimit,
   onAnswer,
   onNext,
 }: QuestionCardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(
+    timeLimit ?? null
+  );
   const submittingRef = useRef(false);
 
-  const handleSelect = (optionId: string) => {
-    if (answered || submittingRef.current) return;
-    submittingRef.current = true;
-    setSelectedId(optionId);
-    setAnswered(true);
-    onAnswer(optionId);
-  };
+  const handleSelect = useCallback(
+    (optionId: string) => {
+      if (answered || submittingRef.current) return;
+      submittingRef.current = true;
+      setSelectedId(optionId);
+      setAnswered(true);
+      setTimeLeft(null);
+      onAnswer(optionId);
+    },
+    [answered, onAnswer]
+  );
+
+  // Timer countdown
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0 || answered) return;
+    const timer = setTimeout(() => setTimeLeft((t) => (t ?? 1) - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [timeLeft, answered]);
+
+  // Auto-submit on timeout
+  useEffect(() => {
+    if (timeLeft !== 0 || answered) return;
+    // Pick a wrong option to auto-submit
+    const wrongOption = options.find((o) => o.id !== correctOptionId);
+    if (wrongOption) {
+      handleSelect(wrongOption.id);
+    }
+  }, [timeLeft, answered, options, correctOptionId, handleSelect]);
 
   return (
     <div className="space-y-4">
@@ -57,7 +83,19 @@ export function QuestionCard({
         <span>
           Question {questionNumber} of {totalQuestions}
         </span>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {timeLeft !== null && !answered && (
+            <Badge
+              variant="outline"
+              className={
+                timeLeft <= 5
+                  ? "border-red-500/50 text-red-400 animate-pulse"
+                  : "border-amber-500/50 text-amber-400"
+              }
+            >
+              {timeLeft}s
+            </Badge>
+          )}
           <Badge variant="outline" className={categoryColorClass[category] ?? ""}>
             {category}
           </Badge>

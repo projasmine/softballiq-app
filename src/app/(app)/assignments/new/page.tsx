@@ -21,6 +21,7 @@ export default function NewAssignmentPage() {
   const [category, setCategory] = useState<string>("");
   const [difficulty, setDifficulty] = useState<string>("");
   const [questionCount, setQuestionCount] = useState(5);
+  const [timeLimit, setTimeLimit] = useState<string>("");
   const [dueDate, setDueDate] = useState("");
   const [teamId, setTeamId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,7 @@ export default function NewAssignmentPage() {
         categoryFilter: category || undefined,
         difficultyFilter: difficulty || undefined,
         questionCount,
+        timeLimitSeconds: timeLimit ? Number(timeLimit) : undefined,
         dueDate: dueDate || undefined,
       });
       router.push("/assignments");
@@ -111,6 +113,23 @@ export default function NewAssignmentPage() {
               value={questionCount}
               onChange={(e) => setQuestionCount(Number(e.target.value))}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Time Limit Per Question (optional)</Label>
+            <Select value={timeLimit} onValueChange={setTimeLimit}>
+              <SelectTrigger>
+                <SelectValue placeholder="No time limit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 seconds</SelectItem>
+                <SelectItem value="15">15 seconds</SelectItem>
+                <SelectItem value="20">20 seconds</SelectItem>
+                <SelectItem value="30">30 seconds</SelectItem>
+                <SelectItem value="45">45 seconds</SelectItem>
+                <SelectItem value="60">60 seconds</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

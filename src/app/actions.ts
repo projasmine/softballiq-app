@@ -414,6 +414,7 @@ export async function createAssignment(data: {
   categoryFilter?: string;
   difficultyFilter?: string;
   questionCount: number;
+  timeLimitSeconds?: number;
   dueDate?: string;
   questionIds?: string[];
 }) {
@@ -451,6 +452,7 @@ export async function createAssignment(data: {
         | "advanced"
         | undefined,
       questionCount: data.questionCount,
+      timeLimitSeconds: data.timeLimitSeconds ?? null,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
     })
     .returning();
@@ -551,6 +553,7 @@ export async function startAssignment(assignmentId: string) {
     attemptId: attempt.id,
     questions: mergedQuestions,
     assignmentId,
+    timeLimitSeconds: assignment.timeLimitSeconds,
   };
 }
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, Plus, Video, MessageSquare, Play } from "lucide-react";
+import { CheckCircle2, Clock, Plus, Video, MessageSquare, Play, Timer } from "lucide-react";
 import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
 import Image from "next/image";
 
@@ -23,6 +23,7 @@ interface AssignmentsListProps {
       categoryFilter: string | null;
       difficultyFilter: string | null;
       questionCount: number;
+      timeLimitSeconds: number | null;
       dueDate: Date | null;
       createdAt: Date;
     }[];
@@ -208,6 +209,12 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
                     <Badge variant="outline" className="text-xs">
                       {assignment.questionCount} Q
                     </Badge>
+                    {assignment.timeLimitSeconds && (
+                      <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-400">
+                        <Timer className="h-3 w-3 mr-1" />
+                        {assignment.timeLimitSeconds}s
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 {isComplete ? (

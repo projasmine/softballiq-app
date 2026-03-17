@@ -189,6 +189,7 @@ export const assignments = pgTable("assignments", {
   categoryFilter: categoryEnum("category_filter"),
   difficultyFilter: difficultyEnum("difficulty_filter"),
   questionCount: integer("question_count").notNull().default(5),
+  timeLimitSeconds: integer("time_limit_seconds"),
   dueDate: timestamp("due_date", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()

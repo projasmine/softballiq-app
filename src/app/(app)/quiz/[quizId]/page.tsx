@@ -33,6 +33,7 @@ export default function QuizPage() {
   const [assignmentId, setAssignmentId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [timeLimitSeconds, setTimeLimitSeconds] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function QuizPage() {
           setAttemptId(result.attemptId);
           setAssignmentId(result.assignmentId!);
           setQuestions(result.questions as Question[]);
+          setTimeLimitSeconds(result.timeLimitSeconds ?? null);
         } else {
           setError(result.error || "Failed to load quiz");
         }
@@ -115,6 +117,7 @@ export default function QuizPage() {
         correctOptionId={question.correctOptionId}
         explanation={question.explanation}
         situation={question.situation}
+        timeLimit={timeLimitSeconds}
         onAnswer={handleAnswer}
         onNext={handleNext}
       />
