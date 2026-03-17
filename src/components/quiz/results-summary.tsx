@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Target, Flame, Home } from "lucide-react";
+import { Trophy, Target, Flame, Home, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 interface ResultsSummaryProps {
   score: number;
   totalQuestions: number;
+  quizType?: string;
   streakCount?: number;
   actions?: React.ReactNode;
   answers: {
@@ -22,6 +23,7 @@ interface ResultsSummaryProps {
 export function ResultsSummary({
   score,
   totalQuestions,
+  quizType,
   streakCount,
   actions,
   answers,
@@ -153,9 +155,18 @@ export function ResultsSummary({
               Dashboard
             </Link>
           </Button>
-          <Button asChild className="flex-1">
-            <Link href="/daily-rep">Play Again</Link>
-          </Button>
+          {quizType === "practice" ? (
+            <Button asChild className="flex-1">
+              <Link href="/study">
+                <BookOpen className="mr-2 h-4 w-4" />
+                Study Again
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild className="flex-1">
+              <Link href="/daily-rep">Play Again</Link>
+            </Button>
+          )}
         </div>
       )}
     </div>

@@ -32,6 +32,7 @@ export default async function QuizResultsPage({
       <ResultsSummary
         score={data.attempt.score ?? 0}
         totalQuestions={data.attempt.totalQuestions}
+        quizType={data.attempt.type}
         answers={answers}
       />
     </div>

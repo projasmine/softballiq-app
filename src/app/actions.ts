@@ -1375,6 +1375,114 @@ export async function resetQuestionOverride(teamId: string, questionId: string) 
   return { success: true };
 }
 
+// ─── Study Mode Actions ─────────────────────────────────
+export async function getWrongQuestionsSummary() {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const userId = session.user.id;
+
+  // Get all questions the user has answered incorrectly
+  const wrongAnswers = await db
+    .select({ questionId: quizAnswers.questionId })
+    .from(quizAnswers)
+    .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
+    .where(
+      and(eq(quizAttempts.userId, userId), eq(quizAnswers.isCorrect, false))
+    );
+
+  // Get questions the user has since answered correctly
+  const correctAnswers = await db
+    .select({ questionId: quizAnswers.questionId })
+    .from(quizAnswers)
+    .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
+    .where(
+      and(eq(quizAttempts.userId, userId), eq(quizAnswers.isCorrect, true))
+    );
+
+  const correctIds = new Set(correctAnswers.map((a) => a.questionId));
+  const stillWrongIds = [
+    ...new Set(
+      wrongAnswers
+        .map((a) => a.questionId)
+        .filter((id) => !correctIds.has(id))
+    ),
+  ];
+
+  return { count: stillWrongIds.length };
+}
+
+export async function startStudyMode() {
+  const userId = await requireUserId();
+
+  // Get user's team for overrides
+  const [membership] = await db
+    .select()
+    .from(teamMembers)
+    .where(eq(teamMembers.userId, userId))
+    .limit(1);
+
+  // Get all questions the user has answered incorrectly
+  const wrongAnswers = await db
+    .select({ questionId: quizAnswers.questionId })
+    .from(quizAnswers)
+    .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
+    .where(
+      and(eq(quizAttempts.userId, userId), eq(quizAnswers.isCorrect, false))
+    );
+
+  // Get questions the user has since answered correctly
+  const correctAnswers = await db
+    .select({ questionId: quizAnswers.questionId })
+    .from(quizAnswers)
+    .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
+    .where(
+      and(eq(quizAttempts.userId, userId), eq(quizAnswers.isCorrect, true))
+    );
+
+  const correctIds = new Set(correctAnswers.map((a) => a.questionId));
+  const stillWrongIds = [
+    ...new Set(
+      wrongAnswers
+        .map((a) => a.questionId)
+        .filter((id) => !correctIds.has(id))
+    ),
+  ];
+
+  if (stillWrongIds.length === 0) {
+    return { success: false, error: "No missed questions to review" };
+  }
+
+  // Pick up to 10 random wrong questions
+  const shuffled = stillWrongIds.sort(() => Math.random() - 0.5);
+  const selectedIds = shuffled.slice(0, 10);
+
+  const questionList = await db
+    .select()
+    .from(questions)
+    .where(inArray(questions.id, selectedIds));
+
+  const mergedQuestions = await applyTeamOverrides(
+    questionList,
+    membership?.teamId
+  );
+
+  const [attempt] = await db
+    .insert(quizAttempts)
+    .values({
+      userId,
+      teamId: membership?.teamId ?? null,
+      type: "practice",
+      totalQuestions: mergedQuestions.length,
+    })
+    .returning();
+
+  return {
+    success: true,
+    attemptId: attempt.id,
+    questions: mergedQuestions,
+  };
+}
+
 // ─── Password Reset Actions ─────────────────────────────
 export async function resetPassword(email: string, newPassword: string) {
   const normalizedEmail = email.trim().toLowerCase();

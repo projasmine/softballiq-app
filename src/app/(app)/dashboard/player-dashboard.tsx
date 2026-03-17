@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
-import { Flame, ClipboardList, Trophy, ArrowRight } from "lucide-react";
+import { Flame, ClipboardList, Trophy, ArrowRight, BookOpen } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 
 interface PlayerDashboardProps {
@@ -85,6 +85,24 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
         </Card>
       )}
 
+      {/* Study Mode */}
+      <Card className="hover:border-primary/30 transition-colors">
+        <CardContent className="pt-4 pb-4">
+          <Link href="/study" className="flex items-center gap-3">
+            <div className="rounded-full bg-primary/10 p-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">Study Mode</p>
+              <p className="text-xs text-muted-foreground">
+                Review questions you&apos;ve missed
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+        </CardContent>
+      </Card>
+
       {/* Pending Assignments */}
       {pendingAssignments.length > 0 && (
         <div className="space-y-3">
@@ -124,7 +142,11 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
               <CardContent className="pt-3 pb-3 flex items-center justify-between">
                 <div>
                   <Badge variant="outline" className="text-xs">
-                    {attempt.type === "daily_rep" ? "Daily Rep" : "Assignment"}
+                    {attempt.type === "daily_rep"
+                      ? "Daily Rep"
+                      : attempt.type === "practice"
+                        ? "Study Mode"
+                        : "Assignment"}
                   </Badge>
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatRelativeDate(attempt.createdAt)}
