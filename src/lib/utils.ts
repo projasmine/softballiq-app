@@ -44,6 +44,21 @@ export function formatRelativeDate(
   return `${month} ${day}`
 }
 
+/** Shared category → display label map */
+export const categoryLabel: Record<string, string> = {
+  baserunning: "Base Running",
+  fielding: "Fielding",
+  hitting: "Hitting",
+  general: "General",
+}
+
+/** Shared difficulty → display label map */
+export const difficultyLabel: Record<string, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+}
+
 /** Shared category → tailwind class map for colored badges */
 export const categoryColorClass: Record<string, string> = {
   baserunning: "bg-amber-500/20 text-amber-300 border-amber-500/30",

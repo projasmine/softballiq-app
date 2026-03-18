@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { categoryLabel } from "@/lib/utils";
 import {
   Radar,
   RadarChart,
@@ -42,7 +43,7 @@ export function ProgressView({ data }: ProgressViewProps) {
   }
 
   const radarData = data.categoryStats.map((s) => ({
-    subject: s.category.charAt(0).toUpperCase() + s.category.slice(1),
+    subject: categoryLabel[s.category] ?? s.category,
     value: s.accuracy,
     fullMark: 100,
   }));
@@ -90,8 +91,8 @@ export function ProgressView({ data }: ProgressViewProps) {
         {data.categoryStats.map((stat) => (
           <Card key={stat.category}>
             <CardContent className="pt-3 pb-3">
-              <p className="text-xs text-muted-foreground capitalize">
-                {stat.category}
+              <p className="text-xs text-muted-foreground">
+                {categoryLabel[stat.category] ?? stat.category}
               </p>
               <p className="text-2xl font-bold">{stat.accuracy}%</p>
               <p className="text-xs text-muted-foreground">

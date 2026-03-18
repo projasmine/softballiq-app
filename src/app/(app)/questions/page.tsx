@@ -1,6 +1,7 @@
 import { getQuestionBank } from "@/app/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { categoryLabel, difficultyLabel } from "@/lib/utils";
 import { QuestionEditButton } from "@/components/question-edit-form";
 import type { QuestionOption } from "@/lib/db/schema";
 
@@ -19,10 +20,10 @@ export default async function QuestionsPage() {
           <CardContent className="pt-3 pb-3 space-y-2">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
-                {q.category}
+                {categoryLabel[q.category] ?? q.category}
               </Badge>
               <Badge variant="outline" className="text-xs">
-                {q.difficulty}
+                {difficultyLabel[q.difficulty] ?? q.difficulty}
               </Badge>
               {q.hasOverride && (
                 <Badge className="text-xs bg-amber-600/20 text-amber-400 border-amber-600/30">

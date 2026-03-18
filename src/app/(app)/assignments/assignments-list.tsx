@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, ClipboardList, Plus, Video, MessageSquare, Play, Timer } from "lucide-react";
-import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
+import { formatRelativeDate, categoryColorClass, categoryLabel } from "@/lib/utils";
 import Image from "next/image";
 
 function extractYouTubeId(url: string): string | null {
@@ -207,7 +207,7 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
                   <div className="flex gap-2">
                     {assignment.categoryFilter && (
                       <Badge variant="outline" className={`text-xs ${categoryColorClass[assignment.categoryFilter] ?? ""}`}>
-                        {assignment.categoryFilter}
+                        {categoryLabel[assignment.categoryFilter] ?? assignment.categoryFilter}
                       </Badge>
                     )}
                     <Badge variant="outline" className="text-xs">

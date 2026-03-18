@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, ClipboardList, Plus, Copy, Check } from "lucide-react";
 import { useState } from "react";
-import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
+import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
 
 interface CoachDashboardProps {
   data: {
@@ -123,10 +123,10 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                             {a.questionCount} questions
                             {a.categoryFilter && (
                               <span className={`ml-1 inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${categoryColorClass[a.categoryFilter] ?? ""}`}>
-                                {a.categoryFilter}
+                                {categoryLabel[a.categoryFilter] ?? a.categoryFilter}
                               </span>
                             )}
-                            {a.difficultyFilter ? ` · ${a.difficultyFilter}` : ""}
+                            {a.difficultyFilter ? ` · ${difficultyLabel[a.difficultyFilter] ?? a.difficultyFilter}` : ""}
                           </p>
                         </div>
                         <Badge variant="outline" className="text-[10px]">

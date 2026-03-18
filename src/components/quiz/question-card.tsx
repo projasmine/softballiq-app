@@ -8,7 +8,7 @@ import { BatterPlate } from "./batter-plate";
 import { AnswerOption } from "./answer-option";
 import { ExplanationPanel } from "./explanation-panel";
 import type { QuestionOption, Situation } from "@/lib/db/schema";
-import { categoryColorClass } from "@/lib/utils";
+import { categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
 
 interface QuestionCardProps {
   questionNumber: number;
@@ -100,9 +100,9 @@ export function QuestionCard({
             </Badge>
           )}
           <Badge variant="outline" className={categoryColorClass[category] ?? ""}>
-            {category}
+            {categoryLabel[category] ?? category}
           </Badge>
-          <Badge variant="outline">{difficulty}</Badge>
+          <Badge variant="outline">{difficultyLabel[difficulty] ?? difficulty}</Badge>
         </div>
       </div>
 

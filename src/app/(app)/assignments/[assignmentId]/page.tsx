@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, AlertCircle, Zap } from "lucide-react";
-import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
+import { formatRelativeDate, categoryColorClass, categoryLabel } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -43,7 +43,7 @@ export default async function AssignmentDetailPage({
                   variant="outline"
                   className={`text-xs ${categoryColorClass[assignment.categoryFilter] ?? ""}`}
                 >
-                  {assignment.categoryFilter}
+                  {categoryLabel[assignment.categoryFilter] ?? assignment.categoryFilter}
                 </Badge>
               )}
               <Badge variant="outline" className="text-xs">
