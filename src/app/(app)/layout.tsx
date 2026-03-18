@@ -41,7 +41,7 @@ export default async function AppLayout({
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-40">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <Image
-            src={isPro ? "/logo-pro.svg" : "/logo.svg"}
+            src={isPro ? "/logo-pro.png" : "/logo.png"}
             alt="Softball IQ"
             width={isPro ? 160 : 140}
             height={36}

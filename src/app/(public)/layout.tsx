@@ -14,7 +14,7 @@ export default function PublicLayout({
           <div className="flex items-center gap-2">
             <Link href="/">
               <Image
-                src="/logo.svg"
+                src="/logo.png"
                 alt="Softball IQ"
                 width={140}
                 height={36}
