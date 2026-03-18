@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Flame, Users, Trophy } from "lucide-react";
@@ -9,12 +10,17 @@ export default function LandingPage() {
       <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-8">
         {/* Brand */}
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Softball IQ
-          </h1>
+          <Image
+            src="/logo.png"
+            alt="Softball IQ"
+            width={220}
+            height={56}
+            className="h-14 w-auto mx-auto"
+            priority
+          />
           <div className="flex items-center justify-center gap-2">
             <Badge variant="outline" className="text-xs border-primary/40 text-primary">
-              12U Rules
+              8U – 14U
             </Badge>
           </div>
           <p className="text-muted-foreground">
@@ -71,7 +77,10 @@ export default function LandingPage() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Built for girls&apos; softball
+          Built for girls&apos; softball &middot;{" "}
+          <Link href="/about" className="text-primary hover:underline">
+            Learn more
+          </Link>
         </p>
       </div>
     </div>

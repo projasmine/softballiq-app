@@ -39,75 +39,139 @@ export function BatterPlate({ situation, className }: BatterPlateProps) {
         />
 
         {/* Batter's boxes */}
-        {/* Left box */}
         <rect
-          x={135}
-          y={155}
-          width={40}
-          height={55}
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-          opacity={0.7}
-          rx="2"
+          x={135} y={155} width={40} height={55}
+          fill="none" stroke="white" strokeWidth="2" opacity={0.7} rx="2"
         />
-        {/* Right box */}
         <rect
-          x={225}
-          y={155}
-          width={40}
-          height={55}
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-          opacity={0.7}
-          rx="2"
+          x={225} y={155} width={40} height={55}
+          fill="none" stroke="white" strokeWidth="2" opacity={0.7} rx="2"
         />
 
-        {/* Batter silhouette (right-handed) */}
-        {/* Body */}
-        <ellipse cx={240} cy={170} rx={6} ry={7} fill="#374151" stroke="#1f2937" strokeWidth="1" />
-        {/* Torso */}
-        <line x1={240} y1={177} x2={240} y2={197} stroke="#374151" strokeWidth="4" strokeLinecap="round" />
-        {/* Legs */}
-        <line x1={240} y1={197} x2={234} y2={210} stroke="#374151" strokeWidth="3" strokeLinecap="round" />
-        <line x1={240} y1={197} x2={246} y2={210} stroke="#374151" strokeWidth="3" strokeLinecap="round" />
-        {/* Arms holding bat */}
-        <line x1={240} y1={183} x2={250} y2={178} stroke="#374151" strokeWidth="3" strokeLinecap="round" />
-        {/* Bat */}
-        <line x1={248} y1={180} x2={260} y2={158} stroke="#92400e" strokeWidth="3.5" strokeLinecap="round" />
-        <line x1={260} y1={158} x2={264} y2={150} stroke="#b45309" strokeWidth="4.5" strokeLinecap="round" />
+        {/* Right-handed batter silhouette */}
+        <g transform="translate(240, 165)">
+          {/* Helmet */}
+          <ellipse cx={0} cy={-2} rx={7} ry={8} fill="#1e293b" />
+          <rect x={-8} y={-6} width={5} height={8} rx={2} fill="#1e293b" />
+          {/* Face area */}
+          <ellipse cx={1} cy={0} rx={4.5} ry={5.5} fill="#d4a574" />
+
+          {/* Neck */}
+          <rect x={-2} y={6} width={4} height={4} fill="#d4a574" rx={1} />
+
+          {/* Torso - jersey */}
+          <path
+            d="M-10,10 C-10,10 -12,12 -12,18 L-12,30 C-12,32 -10,34 -6,34 L6,34 C10,34 12,32 12,30 L12,18 C12,12 10,10 10,10 Z"
+            fill="#374151"
+            stroke="#1f2937"
+            strokeWidth="0.5"
+          />
+          {/* Jersey number hint */}
+          <text x={0} y={26} fill="#6b7280" fontSize="8" textAnchor="middle" fontFamily="system-ui" fontWeight="bold">
+            7
+          </text>
+
+          {/* Back arm (farther) */}
+          <path
+            d="M-10,14 C-16,12 -18,8 -14,4"
+            fill="none" stroke="#374151" strokeWidth="5" strokeLinecap="round"
+          />
+          {/* Back hand */}
+          <circle cx={-14} cy={3} r={3} fill="#d4a574" />
+
+          {/* Front arm (closer) */}
+          <path
+            d="M10,14 C16,10 18,6 14,2"
+            fill="none" stroke="#374151" strokeWidth="5" strokeLinecap="round"
+          />
+          {/* Front hand */}
+          <circle cx={14} cy={1} r={3} fill="#d4a574" />
+
+          {/* Bat */}
+          <line x1={14} y1={2} x2={26} y2={-22} stroke="#92400e" strokeWidth="3" strokeLinecap="round" />
+          <line x1={26} y1={-22} x2={30} y2={-30} stroke="#b45309" strokeWidth="4.5" strokeLinecap="round" />
+          {/* Bat knob */}
+          <circle cx={13} cy={3} r={2.5} fill="#713f12" />
+
+          {/* Pants */}
+          <path
+            d="M-6,34 L-8,48 L-3,48 L0,38 L3,48 L8,48 L6,34 Z"
+            fill="#334155"
+            stroke="#1e293b"
+            strokeWidth="0.5"
+          />
+
+          {/* Cleats */}
+          <rect x={-9} y={47} width={7} height={4} rx={2} fill="#1e293b" />
+          <rect x={2} y={47} width={7} height={4} rx={2} fill="#1e293b" />
+        </g>
 
         {/* Catcher silhouette */}
-        <ellipse cx={200} cy={215} rx={6} ry={6} fill="#374151" stroke="#1f2937" strokeWidth="1" />
-        <ellipse cx={200} cy={228} rx={8} ry={6} fill="#374151" stroke="#1f2937" strokeWidth="1" />
-        {/* Mitt */}
-        <ellipse cx={194} cy={222} rx={5} ry={6} fill="#92400e" stroke="#78350f" strokeWidth="1" />
+        <g transform="translate(200, 205)">
+          {/* Catcher's helmet/mask */}
+          <ellipse cx={0} cy={-4} rx={8} ry={9} fill="#1e293b" />
+          {/* Mask grid lines */}
+          <line x1={-5} y1={-6} x2={5} y2={-6} stroke="#4b5563" strokeWidth="0.8" />
+          <line x1={-6} y1={-2} x2={6} y2={-2} stroke="#4b5563" strokeWidth="0.8" />
+          <line x1={-5} y1={2} x2={5} y2={2} stroke="#4b5563" strokeWidth="0.8" />
+          <line x1={0} y1={-10} x2={0} y2={5} stroke="#4b5563" strokeWidth="0.8" />
+
+          {/* Chest protector */}
+          <path
+            d="M-12,6 C-12,6 -14,10 -14,16 L-14,24 C-14,26 -10,28 0,28 C10,28 14,26 14,24 L14,16 C14,10 12,6 12,6 Z"
+            fill="#475569"
+            stroke="#374151"
+            strokeWidth="0.5"
+          />
+          {/* Chest protector detail */}
+          <line x1={0} y1={8} x2={0} y2={26} stroke="#374151" strokeWidth="1" opacity={0.5} />
+          <line x1={-10} y1={16} x2={10} y2={16} stroke="#374151" strokeWidth="1" opacity={0.5} />
+
+          {/* Mitt arm */}
+          <path
+            d="M-12,12 C-18,10 -22,14 -20,18"
+            fill="none" stroke="#475569" strokeWidth="5" strokeLinecap="round"
+          />
+          {/* Catcher's mitt */}
+          <ellipse cx={-20} cy={19} rx={7} ry={8} fill="#92400e" stroke="#78350f" strokeWidth="1" />
+          <path d="M-23,16 C-20,14 -17,16 -17,19" fill="none" stroke="#78350f" strokeWidth="1" />
+          {/* Mitt pocket */}
+          <ellipse cx={-20} cy={20} rx={4} ry={5} fill="#7c3415" opacity={0.5} />
+
+          {/* Throwing hand */}
+          <path
+            d="M12,12 C16,14 14,18 12,18"
+            fill="none" stroke="#475569" strokeWidth="4" strokeLinecap="round"
+          />
+          <circle cx={12} cy={19} r={3} fill="#d4a574" />
+
+          {/* Shin guards (crouching) */}
+          <path
+            d="M-8,28 L-10,36 L-4,36 Z"
+            fill="#475569" stroke="#374151" strokeWidth="0.5"
+          />
+          <path
+            d="M8,28 L10,36 L4,36 Z"
+            fill="#475569" stroke="#374151" strokeWidth="0.5"
+          />
+          {/* Cleats */}
+          <rect x={-11} y={35} width={8} height={3} rx={1.5} fill="#1e293b" />
+          <rect x={3} y={35} width={8} height={3} rx={1.5} fill="#1e293b" />
+        </g>
 
         {/* Strike zone overlay */}
         <rect
-          x={185}
-          y={167}
-          width={30}
-          height={25}
-          fill="none"
-          stroke="white"
-          strokeWidth="1"
-          strokeDasharray="4 3"
-          opacity={0.35}
+          x={185} y={167} width={30} height={25}
+          fill="none" stroke="white" strokeWidth="1"
+          strokeDasharray="4 3" opacity={0.35}
         />
 
         {/* Mini diamond - runners indicator */}
         <g transform="translate(320, 55)">
-          {/* Diamond shape */}
           <polygon
             points="30,0 60,25 30,50 0,25"
-            fill="none"
-            stroke="white"
-            strokeWidth="1.5"
-            opacity={0.4}
+            fill="none" stroke="white" strokeWidth="1.5" opacity={0.4}
           />
-          {/* Bases */}
           <rect
             x={26} y={-4} width={8} height={8}
             fill={runners.includes("second") ? "#fbbf24" : "white"}
@@ -126,11 +190,9 @@ export function BatterPlate({ situation, className }: BatterPlateProps) {
             opacity={runners.includes("third") ? 1 : 0.4}
             transform="rotate(45, 0, 25)"
           />
-          {/* Home */}
           <polygon
             points="30,47 27,50 27,53 33,53 33,50"
-            fill="white"
-            opacity={0.5}
+            fill="white" opacity={0.5}
           />
         </g>
 
@@ -161,13 +223,9 @@ export function BatterPlate({ situation, className }: BatterPlateProps) {
         {/* Inning */}
         {inning && (
           <text
-            x={200}
-            y={24}
-            fill="white"
-            fontSize="11"
-            fontFamily="system-ui"
-            textAnchor="middle"
-            fontWeight="bold"
+            x={200} y={24}
+            fill="white" fontSize="11" fontFamily="system-ui"
+            textAnchor="middle" fontWeight="bold"
           >
             INN {inning}
           </text>
@@ -177,13 +235,9 @@ export function BatterPlate({ situation, className }: BatterPlateProps) {
         {score && (
           <>
             <text
-              x={305}
-              y={24}
-              fill="#22c55e"
-              fontSize="11"
-              fontFamily="system-ui"
-              textAnchor="end"
-              fontWeight="bold"
+              x={305} y={24}
+              fill="#22c55e" fontSize="11" fontFamily="system-ui"
+              textAnchor="end" fontWeight="bold"
             >
               US {score.us}
             </text>
@@ -191,13 +245,9 @@ export function BatterPlate({ situation, className }: BatterPlateProps) {
               -
             </text>
             <text
-              x={384}
-              y={24}
-              fill="#ef4444"
-              fontSize="11"
-              fontFamily="system-ui"
-              textAnchor="end"
-              fontWeight="bold"
+              x={384} y={24}
+              fill="#ef4444" fontSize="11" fontFamily="system-ui"
+              textAnchor="end" fontWeight="bold"
             >
               THEM {score.them}
             </text>

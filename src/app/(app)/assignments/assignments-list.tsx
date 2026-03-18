@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, Plus, Video, MessageSquare, Play, Timer } from "lucide-react";
+import { CheckCircle2, Clock, ClipboardList, Plus, Video, MessageSquare, Play, Timer } from "lucide-react";
 import { formatRelativeDate, categoryColorClass } from "@/lib/utils";
 import Image from "next/image";
 
@@ -60,29 +60,33 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
 
   if (isEmpty) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="pt-6 text-center space-y-2">
-          <p className="text-muted-foreground text-sm">
-            {isCoach
-              ? "No assignments yet. Create one for your team!"
-              : "No assignments yet. Your coach will assign some soon!"}
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
+        <ClipboardList className="h-10 w-10 text-muted-foreground/50" />
+        <div className="space-y-1">
+          <p className="font-medium text-sm">
+            {isCoach ? "No assignments yet" : "No assignments yet"}
           </p>
-          {isCoach && (
-            <div className="flex gap-2 justify-center">
-              <Button asChild size="sm">
-                <Link href="/assignments/new">
-                  <Plus className="mr-2 h-4 w-4" /> Quiz Assignment
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href="/assignments/new-video">
-                  <Video className="mr-2 h-4 w-4" /> Video Assignment
-                </Link>
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <p className="text-muted-foreground text-xs">
+            {isCoach
+              ? "Create a quiz or video assignment for your team."
+              : "Your coach will assign some soon!"}
+          </p>
+        </div>
+        {isCoach && (
+          <div className="flex gap-2">
+            <Button asChild size="sm">
+              <Link href="/assignments/new">
+                <Plus className="mr-2 h-4 w-4" /> Quiz Assignment
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/assignments/new-video">
+                <Video className="mr-2 h-4 w-4" /> Video Assignment
+              </Link>
+            </Button>
+          </div>
+        )}
+      </div>
     );
   }
 

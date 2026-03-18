@@ -38,6 +38,7 @@ const safeProfileColumns = {
   role: profiles.role,
   positions: profiles.positions,
   avatarUrl: profiles.avatarUrl,
+  plan: profiles.plan,
   createdAt: profiles.createdAt,
   updatedAt: profiles.updatedAt,
 };
@@ -652,6 +653,7 @@ export async function getDashboardData() {
       teamName: teams.name,
       joinCode: teams.joinCode,
       ageGroup: teams.ageGroup,
+      theme: teams.theme,
     })
     .from(teamMembers)
     .innerJoin(teams, eq(teams.id, teamMembers.teamId))
@@ -1675,6 +1677,63 @@ export async function resetPassword(email: string, newPassword: string) {
 }
 
 // ─── Helpers ───────────────────────────────────────────
+// ─── Team Theme Actions ───────────────────────────────
+const TEAM_THEMES = [
+  "default",
+  "crimson",
+  "ocean",
+  "emerald",
+  "purple",
+  "sunset",
+  "midnight",
+  "gold",
+] as const;
+
+export type TeamTheme = (typeof TEAM_THEMES)[number];
+
+export async function updateTeamTheme(theme: string) {
+  const userId = await requireUserId();
+
+  if (!TEAM_THEMES.includes(theme as TeamTheme)) {
+    return { success: false, error: "Invalid theme" };
+  }
+
+  // Verify user is a coach on a team
+  const [membership] = await db
+    .select({ teamId: teamMembers.teamId, role: teamMembers.role })
+    .from(teamMembers)
+    .where(eq(teamMembers.userId, userId))
+    .limit(1);
+
+  if (!membership || membership.role !== "coach") {
+    return { success: false, error: "Only coaches can change the team theme" };
+  }
+
+  // Verify coach has pro plan
+  const [profile] = await db
+    .select({ plan: profiles.plan })
+    .from(profiles)
+    .where(eq(profiles.id, userId))
+    .limit(1);
+
+  if (profile?.plan !== "pro") {
+    return { success: false, error: "Team themes require a Pro plan" };
+  }
+
+  await db
+    .update(teams)
+    .set({ theme })
+    .where(eq(teams.id, membership.teamId));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+export async function getTeamThemes() {
+  return TEAM_THEMES;
+}
+
 function generateJoinCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";

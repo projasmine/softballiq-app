@@ -11,9 +11,22 @@ import {
   signOut,
   getDashboardData,
   deleteTeam,
+  updateTeamTheme,
 } from "@/app/actions";
-import { Loader2, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Trash2, Palette } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+const THEMES = [
+  { id: "default", label: "Default", swatch: "#c9a227" },
+  { id: "crimson", label: "Crimson", swatch: "#dc2626" },
+  { id: "ocean", label: "Ocean", swatch: "#3b82f6" },
+  { id: "emerald", label: "Emerald", swatch: "#10b981" },
+  { id: "purple", label: "Purple", swatch: "#8b5cf6" },
+  { id: "sunset", label: "Sunset", swatch: "#f97316" },
+  { id: "midnight", label: "Midnight", swatch: "#6366f1" },
+  { id: "gold", label: "Gold", swatch: "#eab308" },
+];
 
 const POSITIONS = [
   "Pitcher",
@@ -42,6 +55,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [plan, setPlan] = useState("free");
+  const [currentTheme, setCurrentTheme] = useState("default");
+  const [savingTheme, setSavingTheme] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -51,11 +67,13 @@ export default function SettingsPage() {
           setDisplayName(data.profile.displayName);
           setEmail(data.profile.email);
           setRole(data.profile.role);
+          setPlan(data.profile.plan);
           setSelectedPositions((data.profile.positions as string[]) || []);
         }
         if (data?.membership) {
           setTeamName(data.membership.teamName);
           setTeamId(data.membership.teamId);
+          setCurrentTheme(data.membership.theme ?? "default");
         }
       } catch {
         // Failed to load settings
@@ -190,6 +208,49 @@ export default function SettingsPage() {
             <Button onClick={handleSavePositions} size="sm" disabled={savingPositions}>
               {savingPositions ? "Saving..." : "Save Positions"}
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Team Theme — coaches with pro plan */}
+      {role === "coach" && plan === "pro" && teamId && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-1.5">
+                <Palette className="h-4 w-4" />
+                Team Theme
+              </CardTitle>
+              <Badge className="text-[10px]">Pro</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-4 gap-2">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={async () => {
+                    setSavingTheme(true);
+                    setCurrentTheme(t.id);
+                    await updateTeamTheme(t.id);
+                    setSavingTheme(false);
+                    window.location.reload();
+                  }}
+                  className={`p-2.5 rounded-lg border-2 text-xs font-medium transition-all flex flex-col items-center gap-1.5 ${
+                    currentTheme === t.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                  disabled={savingTheme}
+                >
+                  <span
+                    className="h-5 w-5 rounded-full border border-white/20"
+                    style={{ backgroundColor: t.swatch }}
+                  />
+                  <span className="text-[10px]">{t.label}</span>
+                </button>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

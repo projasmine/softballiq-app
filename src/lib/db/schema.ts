@@ -36,6 +36,7 @@ export const ageGroupEnum = pgEnum("age_group", [
   "12U",
   "14U",
 ]);
+export const planEnum = pgEnum("plan", ["free", "pro"]);
 
 // ─── Profiles ───────────────────────────────────────────
 export const profiles = pgTable("profiles", {
@@ -46,6 +47,7 @@ export const profiles = pgTable("profiles", {
   role: roleEnum("role").notNull().default("player"),
   positions: jsonb("positions").$type<string[]>().default([]),
   avatarUrl: text("avatar_url"),
+  plan: planEnum("plan").notNull().default("free"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -59,6 +61,7 @@ export const teams = pgTable("teams", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   ageGroup: ageGroupEnum("age_group").notNull().default("12U"),
+  theme: text("theme").default("default"),
   joinCode: varchar("join_code", { length: 8 }).notNull().unique(),
   createdBy: uuid("created_by")
     .references(() => profiles.id)
