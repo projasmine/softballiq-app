@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,44 @@ interface TeamData {
 }
 
 export default function JoinTeamPage() {
+  return (
+    <Suspense>
+      <JoinTeamContent />
+    </Suspense>
+  );
+}
+
+function JoinTeamContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [teamCode, setTeamCode] = useState("");
   const [team, setTeam] = useState<TeamData | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [signingIn, setSigningIn] = useState<string | null>(null);
+
+  // Auto-fill and auto-lookup from URL query param
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      setTeamCode(code.toUpperCase());
+      // Auto-lookup the team
+      setLoading(true);
+      getTeamByCode(code).then((result) => {
+        if (result && result.players.length > 0) {
+          setTeam(result);
+        } else if (result) {
+          setError("No players on this team yet. Ask your coach to add you!");
+        } else {
+          setError("Team not found. Check the code and try again.");
+        }
+        setLoading(false);
+      }).catch(() => {
+        setError("Something went wrong. Please try again.");
+        setLoading(false);
+      });
+    }
+  }, [searchParams]);
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();

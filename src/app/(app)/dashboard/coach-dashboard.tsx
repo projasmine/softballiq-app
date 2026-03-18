@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardList, Plus, Copy, Check } from "lucide-react";
+import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2 } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
 
@@ -33,12 +33,40 @@ interface CoachDashboardProps {
 export function CoachDashboard({ data }: CoachDashboardProps) {
   const { profile, membership, recentAssignments } = data;
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+
+  const joinUrl = membership?.joinCode
+    ? `${typeof window !== "undefined" ? window.location.origin : "https://softballiq.app"}/join?code=${membership.joinCode}`
+    : "";
 
   const copyCode = () => {
     if (membership?.joinCode) {
       navigator.clipboard.writeText(membership.joinCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(joinUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const shareLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Join ${membership?.teamName} on Softball IQ`,
+          text: `Your coach wants you to join ${membership?.teamName} on Softball IQ! Use this link to sign up and join the team:`,
+          url: joinUrl,
+        });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      copyLink();
     }
   };
 
@@ -64,7 +92,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
         <>
           {/* Join Code */}
           <Card>
-            <CardContent className="pt-4 space-y-2">
+            <CardContent className="pt-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Team Join Code</p>
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-mono font-bold tracking-widest flex-1">
@@ -78,6 +106,56 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                   )}
                 </Button>
               </div>
+
+              {/* Share actions */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs"
+                  onClick={copyLink}
+                >
+                  {copiedLink ? (
+                    <Check className="h-3.5 w-3.5 mr-1.5" />
+                  ) : (
+                    <Link2 className="h-3.5 w-3.5 mr-1.5" />
+                  )}
+                  {copiedLink ? "Copied!" : "Copy Link"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs"
+                  onClick={shareLink}
+                >
+                  <Share2 className="h-3.5 w-3.5 mr-1.5" />
+                  Share
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => setShowQR(!showQR)}
+                >
+                  <QrCode className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+
+              {/* QR Code */}
+              {showQR && (
+                <div className="flex flex-col items-center gap-2 pt-2">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(joinUrl)}&bgcolor=1a1a2e&color=ffffff&format=svg`}
+                    alt="QR Code to join team"
+                    width={180}
+                    height={180}
+                    className="rounded-lg"
+                  />
+                  <p className="text-[10px] text-muted-foreground">
+                    Scan to join {membership.teamName}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
