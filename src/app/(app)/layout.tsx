@@ -39,13 +39,13 @@ export default async function AppLayout({
   return (
     <div className={`min-h-screen pb-20 ${themeClass}`}>
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-lg mx-auto px-4 h-11 flex items-center justify-between">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <Image
-            src={isPro ? "/logo-pro.png" : "/logo.png"}
+            src={isPro ? "/logo-pro.svg" : "/logo.svg"}
             alt="Softball IQ"
-            width={isPro ? 130 : 110}
-            height={28}
-            className="h-7 w-auto"
+            width={isPro ? 160 : 140}
+            height={36}
+            className="h-9 w-auto"
             priority
           />
           {ageGroup && (

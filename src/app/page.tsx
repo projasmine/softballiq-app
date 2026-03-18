@@ -11,11 +11,11 @@ export default function LandingPage() {
         {/* Brand */}
         <div className="space-y-4">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="Softball IQ"
-            width={220}
-            height={56}
-            className="h-14 w-auto mx-auto"
+            width={280}
+            height={72}
+            className="h-18 w-auto mx-auto"
             priority
           />
           <div className="flex items-center justify-center gap-2">

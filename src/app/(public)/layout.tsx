@@ -14,11 +14,11 @@ export default function PublicLayout({
           <div className="flex items-center gap-2">
             <Link href="/">
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="Softball IQ"
-                width={110}
-                height={28}
-                className="h-7 w-auto"
+                width={140}
+                height={36}
+                className="h-9 w-auto"
                 priority
               />
             </Link>
