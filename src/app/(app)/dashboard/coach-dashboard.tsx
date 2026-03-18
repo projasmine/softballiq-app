@@ -37,7 +37,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
   const [showQR, setShowQR] = useState(false);
 
   const joinUrl = membership?.joinCode
-    ? `${typeof window !== "undefined" ? window.location.origin : "https://softballiq.app"}/join?code=${membership.joinCode}`
+    ? `https://softballiq.app/join?code=${membership.joinCode}`
     : "";
 
   const copyCode = () => {
