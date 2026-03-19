@@ -15,10 +15,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Softball IQ — Titan Tournament",
+  title: "Softball IQ",
   description:
-    "Master softball situational IQ with daily quizzes, team assignments, and progress tracking. 12U rules. Built for girls' softball.",
+    "Master softball game IQ with daily quizzes, team assignments, and progress tracking. 8U–14U. Built for girls' softball.",
   metadataBase: new URL("https://softballiq.app"),
+  openGraph: {
+    title: "Softball IQ",
+    description: "Master softball game IQ with daily quizzes and team assignments. 8U–14U.",
+    url: "https://softballiq.app",
+    siteName: "Softball IQ",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Softball IQ",
+    description: "Master softball game IQ with daily quizzes and team assignments. 8U–14U.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: [
       {
