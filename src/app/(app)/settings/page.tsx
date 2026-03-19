@@ -90,10 +90,15 @@ export default function SettingsPage() {
     );
   };
 
+  const [positionsSuccess, setPositionsSuccess] = useState(false);
+
   const handleSavePositions = async () => {
     setSavingPositions(true);
+    setPositionsSuccess(false);
     try {
       await updatePositions(selectedPositions);
+      setPositionsSuccess(true);
+      setTimeout(() => setPositionsSuccess(false), 2000);
     } catch {
       // Failed to save
     } finally {
@@ -205,6 +210,9 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+            {positionsSuccess && (
+              <p className="text-sm text-green-500">Positions saved!</p>
+            )}
             <Button onClick={handleSavePositions} size="sm" disabled={savingPositions}>
               {savingPositions ? "Saving..." : "Save Positions"}
             </Button>
