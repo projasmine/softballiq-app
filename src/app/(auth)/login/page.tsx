@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,11 +41,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-1">
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Sign in to Softball IQ
-          </p>
+        <CardHeader className="text-center space-y-3">
+          <Image
+            src="/logo.png"
+            alt="Softball IQ"
+            width={180}
+            height={46}
+            className="h-10 w-auto mx-auto"
+          />
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Sign in to Softball IQ
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

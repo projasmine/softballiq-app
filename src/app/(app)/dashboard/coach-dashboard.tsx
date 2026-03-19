@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2 } from "lucide-react";
+import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer } from "lucide-react";
 import { useState } from "react";
 import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
 
@@ -140,6 +140,19 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                   <QrCode className="h-3.5 w-3.5" />
                 </Button>
               </div>
+
+              {/* Print flyer link */}
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+              >
+                <Link href="/team/flyer">
+                  <Printer className="h-3.5 w-3.5 mr-1.5" />
+                  Print Team Flyer
+                </Link>
+              </Button>
 
               {/* QR Code */}
               {showQR && (

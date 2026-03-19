@@ -1820,17 +1820,44 @@ export async function requestPasswordReset(email: string) {
       to: email.toLowerCase().trim(),
       subject: "Reset your Softball IQ password",
       html: `
-        <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 16px;">
-          <h2 style="margin: 0 0 16px;">Reset Your Password</h2>
-          <p style="color: #666; margin: 0 0 24px;">
-            We received a request to reset your Softball IQ password. Click the button below to set a new password. This link expires in 1 hour.
-          </p>
-          <a href="${resetUrl}" style="display: inline-block; background: #c9a227; color: #1a1a2e; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-            Reset Password
-          </a>
-          <p style="color: #999; font-size: 13px; margin: 24px 0 0;">
-            If you didn't request this, you can safely ignore this email.
-          </p>
+        <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 480px; margin: 0 auto; background: #1a1a2e; border-radius: 12px; overflow: hidden;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #c9a227, #d4af37); padding: 24px 32px; text-align: center;">
+            <img src="https://softballiq.app/logo.png" alt="Softball IQ" height="36" style="height: 36px; width: auto;" />
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 32px;">
+            <h2 style="color: #ffffff; margin: 0 0 12px; font-size: 20px;">Reset Your Password</h2>
+            <p style="color: #a0a0b0; margin: 0 0 24px; font-size: 14px; line-height: 1.6;">
+              We received a request to reset your Softball IQ password. Click the button below to set a new password. This link expires in 1 hour.
+            </p>
+
+            <!-- Button -->
+            <div style="text-align: center; margin: 28px 0;">
+              <a href="${resetUrl}" style="display: inline-block; background: #c9a227; color: #1a1a2e; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">
+                Reset Password
+              </a>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top: 1px solid #2a2a3e; margin: 24px 0;"></div>
+
+            <p style="color: #666; font-size: 12px; margin: 0 0 8px;">
+              If you didn&rsquo;t request this, you can safely ignore this email. Your password will not be changed.
+            </p>
+            <p style="color: #555; font-size: 11px; margin: 0;">
+              If the button doesn&rsquo;t work, copy and paste this link into your browser:<br/>
+              <a href="${resetUrl}" style="color: #c9a227; word-break: break-all;">${resetUrl}</a>
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #15152a; padding: 16px 32px; text-align: center;">
+            <p style="color: #555; font-size: 11px; margin: 0;">
+              &copy; ${new Date().getFullYear()} Softball IQ &middot; Game IQ training for 8U&ndash;14U softball
+            </p>
+          </div>
         </div>
       `,
     });

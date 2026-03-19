@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Shield } from "lucide-react";
+import Image from "next/image";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -57,13 +58,22 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-1">
-          <CardTitle className="text-2xl font-bold">
-            Join Softball IQ
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Create your account
-          </p>
+        <CardHeader className="text-center space-y-3">
+          <Image
+            src="/logo.png"
+            alt="Softball IQ"
+            width={180}
+            height={46}
+            className="h-10 w-auto mx-auto"
+          />
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold">
+              Join Softball IQ
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Create your account
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
