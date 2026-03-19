@@ -25,7 +25,7 @@ const coachNav = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/team", icon: Users, label: "Team" },
   { href: "/assignments", icon: ClipboardList, label: "Assignments" },
-  { href: "/questions", icon: BarChart3, label: "Questions" },
+  { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 

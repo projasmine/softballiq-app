@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Target, Flame, Home, BookOpen } from "lucide-react";
+import { Trophy, Target, Flame, Home, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 
 interface ResultsSummaryProps {
@@ -109,40 +110,7 @@ export function ResultsSummary({
           Review
         </h3>
         {answers.map((answer, i) => (
-          <Card
-            key={i}
-            className={
-              answer.isCorrect
-                ? "border-green-500/20"
-                : "border-red-500/20"
-            }
-          >
-            <CardContent className="pt-4 space-y-2">
-              <div className="flex items-start gap-2">
-                <span
-                  className={`text-xs font-bold px-2 py-0.5 rounded ${
-                    answer.isCorrect
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-red-500/20 text-red-400"
-                  }`}
-                >
-                  {answer.isCorrect ? "✓" : "✗"}
-                </span>
-                <p className="text-sm flex-1">{answer.questionText}</p>
-              </div>
-              {!answer.isCorrect && (
-                <p className="text-xs text-muted-foreground pl-8">
-                  You answered: {answer.selectedOptionText} →{" "}
-                  <span className="text-green-400">
-                    {answer.correctOptionText}
-                  </span>
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground pl-8 italic">
-                {answer.explanation}
-              </p>
-            </CardContent>
-          </Card>
+          <AnswerReviewCard key={i} answer={answer} index={i} />
         ))}
       </div>
 
@@ -170,5 +138,65 @@ export function ResultsSummary({
         </div>
       )}
     </div>
+  );
+}
+
+function AnswerReviewCard({
+  answer,
+  index,
+}: {
+  answer: ResultsSummaryProps["answers"][number];
+  index: number;
+}) {
+  const [expanded, setExpanded] = useState(!answer.isCorrect);
+
+  return (
+    <Card
+      className={
+        answer.isCorrect ? "border-green-500/20" : "border-red-500/20"
+      }
+    >
+      <CardContent className="pt-4 space-y-2">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-start gap-2 w-full text-left"
+        >
+          <span
+            className={`text-xs font-bold px-2 py-0.5 rounded shrink-0 mt-0.5 ${
+              answer.isCorrect
+                ? "bg-green-500/20 text-green-400"
+                : "bg-red-500/20 text-red-400"
+            }`}
+          >
+            {answer.isCorrect ? "✓" : "✗"}
+          </span>
+          <p className="text-sm flex-1">{answer.questionText}</p>
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          )}
+        </button>
+        {expanded && (
+          <div className="pl-8 space-y-1.5">
+            <p className="text-xs text-muted-foreground">
+              Your answer:{" "}
+              <span className={answer.isCorrect ? "text-green-400" : "text-red-400"}>
+                {answer.selectedOptionText}
+              </span>
+            </p>
+            {!answer.isCorrect && (
+              <p className="text-xs text-muted-foreground">
+                Correct answer:{" "}
+                <span className="text-green-400">{answer.correctOptionText}</span>
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground/80 italic pt-1">
+              {answer.explanation}
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
