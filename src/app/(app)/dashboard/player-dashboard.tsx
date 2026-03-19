@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
-import { Flame, ClipboardList, ArrowRight, BookOpen, CheckCircle2 } from "lucide-react";
+import { Flame, ClipboardList, ArrowRight, BookOpen, CheckCircle2, Brain } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 
 interface PlayerDashboardProps {
@@ -173,10 +173,19 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
         </div>
       ) : (
         <Card className="border-dashed">
-          <CardContent className="pt-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Complete your first rep to see scores here.
-            </p>
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col items-center text-center min-h-[20vh] justify-center gap-3">
+              <Brain className="h-10 w-10 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Time to build your softball IQ!</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Complete your first daily rep and your scores will show up here.
+                </p>
+              </div>
+              <Button asChild size="sm" className="mt-1">
+                <Link href="/daily-rep">Start Your First Rep</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

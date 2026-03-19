@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Brain } from "lucide-react";
 import { categoryLabel } from "@/lib/utils";
 import {
   Radar,
@@ -33,10 +36,19 @@ export function ProgressView({ data }: ProgressViewProps) {
   if (!data) {
     return (
       <Card className="border-dashed">
-        <CardContent className="pt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Complete some quizzes to see your progress!
-          </p>
+        <CardContent className="pt-6 pb-6">
+          <div className="flex flex-col items-center text-center min-h-[40vh] justify-center gap-3">
+            <Brain className="h-12 w-12 text-muted-foreground" />
+            <div>
+              <p className="font-semibold">Your stats are waiting!</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Complete your first daily rep and we&apos;ll start tracking your accuracy, streaks, and category breakdowns.
+              </p>
+            </div>
+            <Button asChild className="mt-2">
+              <Link href="/daily-rep">Start Your First Rep</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -79,9 +91,12 @@ export function ProgressView({ data }: ProgressViewProps) {
               </RadarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Answer more questions to see your breakdown
-            </p>
+            <div className="flex flex-col items-center text-center py-8 gap-2">
+              <Brain className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Keep answering questions to unlock your category breakdown!
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

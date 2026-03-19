@@ -18,7 +18,7 @@ import {
   passwordResetTokens,
 } from "@/lib/db/schema";
 import type { QuestionOption } from "@/lib/db/schema";
-import { eq, and, desc, sql, inArray, lt } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, lt, gte } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { applyTeamOverrides } from "@/lib/questions";
@@ -725,6 +725,95 @@ export async function getDashboardData() {
     recentAttempts,
     pendingAssignments,
     recentAssignments,
+  };
+}
+
+export async function getWeeklyDigest() {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const userId = session.user.id;
+
+  // Get coach's team
+  const [membership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .innerJoin(teams, eq(teams.id, teamMembers.teamId))
+    .where(and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach")))
+    .limit(1);
+
+  if (!membership) return null;
+
+  // Get all players on the team
+  const players = await db
+    .select({
+      id: profiles.id,
+      displayName: profiles.displayName,
+    })
+    .from(teamMembers)
+    .innerJoin(profiles, eq(profiles.id, teamMembers.userId))
+    .where(
+      and(
+        eq(teamMembers.teamId, membership.teamId),
+        eq(teamMembers.role, "player")
+      )
+    );
+
+  // Calculate Monday of current week
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(monday.getDate() + mondayOffset);
+
+  // Sunday end of week
+  const sundayEnd = new Date(monday);
+  sundayEnd.setDate(sundayEnd.getDate() + 7);
+
+  // Today's day index (0=Mon, 6=Sun)
+  const todayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+  if (players.length === 0) return { players: [], todayIndex };
+
+  // Get all daily_rep completions for team players this week
+  const playerIds = players.map((p) => p.id);
+  const completions = await db
+    .select({
+      userId: quizAttempts.userId,
+      completedAt: quizAttempts.completedAt,
+    })
+    .from(quizAttempts)
+    .where(
+      and(
+        inArray(quizAttempts.userId, playerIds),
+        eq(quizAttempts.type, "daily_rep"),
+        gte(quizAttempts.completedAt, monday),
+        lt(quizAttempts.completedAt, sundayEnd)
+      )
+    );
+
+  // Build a set of "userId:dayIndex" for quick lookup
+  const completionSet = new Set<string>();
+  for (const c of completions) {
+    if (!c.completedAt) continue;
+    const d = new Date(c.completedAt);
+    const dayIndex = Math.floor(
+      (d.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    if (dayIndex >= 0 && dayIndex < 7) {
+      completionSet.add(`${c.userId}:${dayIndex}`);
+    }
+  }
+
+  return {
+    players: players.map((p) => ({
+      id: p.id,
+      displayName: p.displayName,
+      completions: Array.from({ length: 7 }, (_, i) =>
+        completionSet.has(`${p.id}:${i}`)
+      ),
+    })),
+    todayIndex,
   };
 }
 
@@ -1906,6 +1995,58 @@ export async function resetPasswordWithToken(token: string, newPassword: string)
     .update(passwordResetTokens)
     .set({ usedAt: new Date() })
     .where(eq(passwordResetTokens.id, resetToken.id));
+
+  return { success: true };
+}
+
+// ─── Feedback Actions ─────────────────────────────────
+export async function submitFeedback(message: string) {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Not authenticated" };
+
+  if (!message || message.trim().length === 0) {
+    return { success: false, error: "Feedback cannot be empty" };
+  }
+
+  const [profile] = await db
+    .select({ email: profiles.email, displayName: profiles.displayName, role: profiles.role })
+    .from(profiles)
+    .where(eq(profiles.id, session.user.id))
+    .limit(1);
+
+  const [membership] = await db
+    .select({ teamName: teams.name })
+    .from(teamMembers)
+    .innerJoin(teams, eq(teams.id, teamMembers.teamId))
+    .where(eq(teamMembers.userId, session.user.id))
+    .limit(1);
+
+  // Send feedback via email
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: "Softball IQ <noreply@softballiq.app>",
+      to: "support@softballiq.app",
+      subject: `[Feedback] from ${profile?.displayName ?? "Unknown"} (${profile?.role ?? "user"})`,
+      html: `
+        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+          <h2 style="margin: 0 0 16px; color: #c9a227;">New Feedback</h2>
+          <table style="font-size: 14px; color: #333; margin-bottom: 16px;">
+            <tr><td style="padding: 4px 12px 4px 0; color: #888;">From:</td><td>${profile?.displayName ?? "Unknown"}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Email:</td><td>${profile?.email ?? "N/A"}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Role:</td><td>${profile?.role ?? "N/A"}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Team:</td><td>${membership?.teamName ?? "No team"}</td></tr>
+          </table>
+          <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.trim()}</div>
+        </div>
+      `,
+    });
+  } catch (e) {
+    console.error("Failed to send feedback email:", e);
+    // Still return success — we don't want to block the user
+  }
 
   return { success: true };
 }

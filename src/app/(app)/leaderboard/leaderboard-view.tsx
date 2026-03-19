@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Flame, Target, Zap } from "lucide-react";
@@ -23,11 +25,19 @@ export function LeaderboardView({ data }: LeaderboardViewProps) {
   if (!data || data.players.length === 0) {
     return (
       <Card className="border-dashed">
-        <CardContent className="pt-6 text-center">
-          <Trophy className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">
-            No scores yet. Complete quizzes to appear on the leaderboard!
-          </p>
+        <CardContent className="pt-6 pb-6">
+          <div className="flex flex-col items-center text-center min-h-[40vh] justify-center gap-3">
+            <Trophy className="h-12 w-12 text-muted-foreground" />
+            <div>
+              <p className="font-semibold">The leaderboard is up for grabs!</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Be the first on your team to complete a daily rep and claim the top spot.
+              </p>
+            </div>
+            <Button asChild className="mt-2">
+              <Link href="/daily-rep">Start Your First Rep</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

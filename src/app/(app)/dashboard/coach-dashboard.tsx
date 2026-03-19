@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer } from "lucide-react";
+import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer, MessageSquare } from "lucide-react";
+import { WeeklyDigest } from "@/components/dashboard/weekly-digest";
 import { useState } from "react";
 import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
 
@@ -34,6 +35,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
   const { profile, membership, recentAssignments } = data;
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedReminder, setCopiedReminder] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
   const joinUrl = membership?.joinCode
@@ -46,6 +48,13 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const copyReminder = () => {
+    const text = `\u{1F94E} Don't forget your Softball IQ daily rep today! 5 questions to keep your game IQ sharp. Open the app: https://softballiq.app`;
+    navigator.clipboard.writeText(text);
+    setCopiedReminder(true);
+    setTimeout(() => setCopiedReminder(false), 2000);
   };
 
   const copyLink = () => {
@@ -172,8 +181,11 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
             </CardContent>
           </Card>
 
+          {/* Weekly Digest */}
+          <WeeklyDigest />
+
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button asChild variant="outline" className="h-auto py-4">
               <Link
                 href="/team"
@@ -191,6 +203,20 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                 <Plus className="h-5 w-5" />
                 <span className="text-xs">New Assignment</span>
               </Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex flex-col items-center gap-2"
+              onClick={copyReminder}
+            >
+              {copiedReminder ? (
+                <Check className="h-5 w-5 text-green-500" />
+              ) : (
+                <MessageSquare className="h-5 w-5" />
+              )}
+              <span className="text-xs">
+                {copiedReminder ? "Copied!" : "Send Reminder"}
+              </span>
             </Button>
           </div>
 

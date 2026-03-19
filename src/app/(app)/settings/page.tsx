@@ -12,9 +12,10 @@ import {
   getDashboardData,
   deleteTeam,
   updateTeamTheme,
+  submitFeedback,
 } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trash2, Palette } from "lucide-react";
+import { Loader2, Trash2, Palette, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const THEMES = [
@@ -308,6 +309,9 @@ export default function SettingsPage() {
         </Card>
       )}
 
+      {/* Feedback */}
+      <FeedbackCard />
+
       <Button
         variant="outline"
         className="w-full text-red-500 hover:text-red-600"
@@ -316,5 +320,66 @@ export default function SettingsPage() {
         Sign Out
       </Button>
     </div>
+  );
+}
+
+function FeedbackCard() {
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!message.trim()) return;
+    setSending(true);
+    const result = await submitFeedback(message);
+    if (result.success) {
+      setSent(true);
+      setMessage("");
+    }
+    setSending(false);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-1.5">
+          <MessageSquare className="h-4 w-4" />
+          Feedback
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {sent ? (
+          <div className="text-center py-2 space-y-2">
+            <p className="text-sm text-green-500 font-medium">Thanks for your feedback!</p>
+            <p className="text-xs text-muted-foreground">We read every message and use it to make Softball IQ better.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSent(false)}
+            >
+              Send More Feedback
+            </Button>
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="What's working? What could be better? Feature ideas?"
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              rows={3}
+            />
+            <Button
+              size="sm"
+              onClick={handleSubmit}
+              disabled={sending || !message.trim()}
+              className="w-full"
+            >
+              {sending ? "Sending..." : "Send Feedback"}
+            </Button>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
