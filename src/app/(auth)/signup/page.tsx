@@ -81,6 +81,7 @@ export default function SignupPage() {
               <Label htmlFor="displayName">Name</Label>
               <Input
                 id="displayName"
+                autoComplete="name"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your name"
@@ -93,6 +94,7 @@ export default function SignupPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
@@ -105,6 +107,7 @@ export default function SignupPage() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
