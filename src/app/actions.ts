@@ -2025,3 +2025,39 @@ function generateJoinCode(): string {
   }
   return code;
 }
+
+// ─── Admin Actions ──────────────────────────────────────
+
+export async function getAdminFeedback() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  // Hardcoded admin check
+  const [user] = await db
+    .select({ email: profiles.email })
+    .from(profiles)
+    .where(eq(profiles.id, session.user.id))
+    .limit(1);
+
+  if (user?.email !== "projasmine@me.com") {
+    return null;
+  }
+
+  const rows = await db
+    .select({
+      id: feedback.id,
+      message: feedback.message,
+      createdAt: feedback.createdAt,
+      userName: profiles.displayName,
+      userEmail: profiles.email,
+      userRole: profiles.role,
+      teamName: teams.name,
+    })
+    .from(feedback)
+    .innerJoin(profiles, eq(profiles.id, feedback.userId))
+    .leftJoin(teamMembers, eq(teamMembers.userId, feedback.userId))
+    .leftJoin(teams, eq(teams.id, teamMembers.teamId))
+    .orderBy(desc(feedback.createdAt));
+
+  return rows;
+}
