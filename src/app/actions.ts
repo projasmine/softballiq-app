@@ -16,6 +16,7 @@ import {
   videoComments,
   teamQuestionOverrides,
   passwordResetTokens,
+  feedback,
 } from "@/lib/db/schema";
 import type { QuestionOption } from "@/lib/db/schema";
 import { eq, and, desc, sql, inArray, lt, gte } from "drizzle-orm";
@@ -2008,45 +2009,10 @@ export async function submitFeedback(message: string) {
     return { success: false, error: "Feedback cannot be empty" };
   }
 
-  const [profile] = await db
-    .select({ email: profiles.email, displayName: profiles.displayName, role: profiles.role })
-    .from(profiles)
-    .where(eq(profiles.id, session.user.id))
-    .limit(1);
-
-  const [membership] = await db
-    .select({ teamName: teams.name })
-    .from(teamMembers)
-    .innerJoin(teams, eq(teams.id, teamMembers.teamId))
-    .where(eq(teamMembers.userId, session.user.id))
-    .limit(1);
-
-  // Send feedback via email
-  try {
-    const { Resend } = await import("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    await resend.emails.send({
-      from: "Softball IQ <noreply@softballiq.app>",
-      to: "support@softballiq.app",
-      subject: `[Feedback] from ${profile?.displayName ?? "Unknown"} (${profile?.role ?? "user"})`,
-      html: `
-        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-          <h2 style="margin: 0 0 16px; color: #c9a227;">New Feedback</h2>
-          <table style="font-size: 14px; color: #333; margin-bottom: 16px;">
-            <tr><td style="padding: 4px 12px 4px 0; color: #888;">From:</td><td>${profile?.displayName ?? "Unknown"}</td></tr>
-            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Email:</td><td>${profile?.email ?? "N/A"}</td></tr>
-            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Role:</td><td>${profile?.role ?? "N/A"}</td></tr>
-            <tr><td style="padding: 4px 12px 4px 0; color: #888;">Team:</td><td>${membership?.teamName ?? "No team"}</td></tr>
-          </table>
-          <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.trim()}</div>
-        </div>
-      `,
-    });
-  } catch (e) {
-    console.error("Failed to send feedback email:", e);
-    // Still return success — we don't want to block the user
-  }
+  await db.insert(feedback).values({
+    userId: session.user.id,
+    message: message.trim(),
+  });
 
   return { success: true };
 }
