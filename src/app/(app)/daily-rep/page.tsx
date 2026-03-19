@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { QuestionCard } from "@/components/quiz/question-card";
-import { startDailyRep, submitAnswer, completeQuiz } from "@/app/actions";
+import { startDailyRep, submitAnswer, completeQuiz, getDashboardData } from "@/app/actions";
 import type { QuestionOption, Situation } from "@/lib/db/schema";
-import { Loader2 } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 
 type Question = {
   id: string;
@@ -27,10 +27,13 @@ export default function DailyRepPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [error, setError] = useState("");
+  const [playerName, setPlayerName] = useState("");
 
   useEffect(() => {
     const init = async () => {
       try {
+        const dashData = await getDashboardData();
+        if (dashData?.profile) setPlayerName(dashData.profile.displayName);
         const result = await startDailyRep();
         if (result.success && result.attemptId && result.questions) {
           setAttemptId(result.attemptId);
@@ -99,7 +102,15 @@ export default function DailyRepPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">Daily Rep</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold">Daily Rep</h1>
+        {playerName && (
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+            <User className="h-3 w-3" />
+            {playerName}
+          </span>
+        )}
+      </div>
       <QuestionCard
         key={question.id}
         questionNumber={currentIndex + 1}
