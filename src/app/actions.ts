@@ -15,10 +15,12 @@ import {
   videoAssignments,
   videoComments,
   teamQuestionOverrides,
+  passwordResetTokens,
 } from "@/lib/db/schema";
 import type { QuestionOption } from "@/lib/db/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, lt } from "drizzle-orm";
 import { hash } from "bcryptjs";
+import { randomBytes } from "crypto";
 import { applyTeamOverrides } from "@/lib/questions";
 import { auth, signOut as nextAuthSignOut } from "@/lib/auth-config";
 import { redirect } from "next/navigation";
@@ -1676,6 +1678,55 @@ export async function resetPassword(email: string, newPassword: string) {
   return { success: true };
 }
 
+export async function resetPlayerPassword(
+  playerId: string,
+  newPassword: string
+) {
+  const userId = await requireUserId();
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: "Password must be at least 6 characters" };
+  }
+
+  // Verify caller is a coach on the same team as the player
+  const [coachMembership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach")))
+    .limit(1);
+
+  if (!coachMembership) {
+    return { success: false, error: "Only coaches can reset player passwords" };
+  }
+
+  const [playerMembership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(
+      and(
+        eq(teamMembers.userId, playerId),
+        eq(teamMembers.teamId, coachMembership.teamId)
+      )
+    )
+    .limit(1);
+
+  if (!playerMembership) {
+    return {
+      success: false,
+      error: "Player is not on your team",
+    };
+  }
+
+  const passwordHash = await hash(newPassword, 12);
+  await db
+    .update(profiles)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(profiles.id, playerId));
+
+  revalidatePath(`/team/${playerId}`);
+  return { success: true };
+}
+
 // ─── Helpers ───────────────────────────────────────────
 // ─── Team Theme Actions ───────────────────────────────
 const TEAM_THEMES = [
@@ -1732,6 +1783,104 @@ export async function updateTeamTheme(theme: string) {
 
 export async function getTeamThemes() {
   return TEAM_THEMES;
+}
+
+// ─── Password Reset Actions ──────────────────────────
+export async function requestPasswordReset(email: string) {
+  if (!email) return { success: false, error: "Email is required" };
+
+  const [user] = await db
+    .select({ id: profiles.id, role: profiles.role })
+    .from(profiles)
+    .where(eq(profiles.email, email.toLowerCase().trim()))
+    .limit(1);
+
+  // Always return success to prevent email enumeration
+  if (!user) return { success: true };
+
+  // Generate token
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await db.insert(passwordResetTokens).values({
+    userId: user.id,
+    token,
+    expiresAt,
+  });
+
+  // Send email via Resend
+  const resetUrl = `https://softballiq.app/reset-password?token=${token}`;
+
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: "Softball IQ <noreply@softballiq.app>",
+      to: email.toLowerCase().trim(),
+      subject: "Reset your Softball IQ password",
+      html: `
+        <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 16px;">
+          <h2 style="margin: 0 0 16px;">Reset Your Password</h2>
+          <p style="color: #666; margin: 0 0 24px;">
+            We received a request to reset your Softball IQ password. Click the button below to set a new password. This link expires in 1 hour.
+          </p>
+          <a href="${resetUrl}" style="display: inline-block; background: #c9a227; color: #1a1a2e; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            Reset Password
+          </a>
+          <p style="color: #999; font-size: 13px; margin: 24px 0 0;">
+            If you didn't request this, you can safely ignore this email.
+          </p>
+        </div>
+      `,
+    });
+  } catch (e) {
+    console.error("Failed to send reset email:", e);
+    return { success: false, error: "Failed to send email. Please try again." };
+  }
+
+  return { success: true };
+}
+
+export async function resetPasswordWithToken(token: string, newPassword: string) {
+  if (!token || !newPassword) {
+    return { success: false, error: "Token and password are required" };
+  }
+  if (newPassword.length < 6) {
+    return { success: false, error: "Password must be at least 6 characters" };
+  }
+
+  // Find valid token
+  const [resetToken] = await db
+    .select()
+    .from(passwordResetTokens)
+    .where(eq(passwordResetTokens.token, token))
+    .limit(1);
+
+  if (!resetToken) {
+    return { success: false, error: "Invalid or expired reset link" };
+  }
+  if (resetToken.usedAt) {
+    return { success: false, error: "This reset link has already been used" };
+  }
+  if (new Date() > resetToken.expiresAt) {
+    return { success: false, error: "This reset link has expired. Please request a new one." };
+  }
+
+  // Hash and update password
+  const passwordHash = await hash(newPassword, 12);
+  await db
+    .update(profiles)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(profiles.id, resetToken.userId));
+
+  // Mark token as used
+  await db
+    .update(passwordResetTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(passwordResetTokens.id, resetToken.id));
+
+  return { success: true };
 }
 
 function generateJoinCode(): string {
