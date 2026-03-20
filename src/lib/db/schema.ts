@@ -281,6 +281,19 @@ export const feedback = pgTable("feedback", {
     .notNull(),
 });
 
+// ─── Donations ────────────────────────────────────────
+export const donations = pgTable("donations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => profiles.id, { onDelete: "set null" }),
+  amount: integer("amount").notNull(), // in cents
+  message: text("message"),
+  stripeSessionId: text("stripe_session_id").unique(),
+  status: text("status").notNull().default("pending"), // pending, completed, failed
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ─── Password Reset Tokens ────────────────────────────
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),

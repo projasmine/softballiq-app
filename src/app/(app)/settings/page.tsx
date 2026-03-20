@@ -15,7 +15,8 @@ import {
   submitFeedback,
 } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trash2, Palette, MessageSquare } from "lucide-react";
+import { Loader2, Trash2, Palette, MessageSquare, Heart } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const THEMES = [
@@ -311,6 +312,14 @@ export default function SettingsPage() {
 
       {/* Feedback */}
       <FeedbackCard />
+
+      {/* Support */}
+      <Button asChild variant="outline" className="w-full">
+        <Link href="/donate">
+          <Heart className="mr-2 h-4 w-4" />
+          Support Softball IQ
+        </Link>
+      </Button>
 
       <Button
         variant="outline"

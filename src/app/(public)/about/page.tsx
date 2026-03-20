@@ -237,6 +237,12 @@ export default function AboutPage() {
             Sign in
           </Link>
         </p>
+        <p className="text-xs text-muted-foreground">
+          Love Softball IQ?{" "}
+          <Link href="/donate" className="text-primary hover:underline">
+            Support us with a donation
+          </Link>
+        </p>
       </section>
 
       {/* Legal */}

@@ -9,6 +9,7 @@ export default auth((req) => {
     publicRoutes.includes(pathname) ||
     pathname.startsWith("/play") ||
     pathname.startsWith("/join") ||
+    pathname.startsWith("/donate") ||
     pathname.startsWith("/api/questions");
   const isAuthApi = pathname.startsWith("/api/auth");
 

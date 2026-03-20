@@ -17,6 +17,7 @@ import {
   teamQuestionOverrides,
   passwordResetTokens,
   feedback,
+  donations,
 } from "@/lib/db/schema";
 import type { QuestionOption } from "@/lib/db/schema";
 import { eq, and, desc, sql, inArray, lt, gte } from "drizzle-orm";
@@ -2015,6 +2016,115 @@ export async function submitFeedback(message: string) {
   });
 
   return { success: true };
+}
+
+// ─── Donation Actions ─────────────────────────────────
+export async function isDonationsEnabled() {
+  return !!process.env.STRIPE_SECRET_KEY;
+}
+export async function createDonationCheckout(amountCents: number, message?: string) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return { success: false, error: "Donations are not configured" };
+  }
+
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+
+  if (amountCents < 100 || amountCents > 100000) {
+    return { success: false, error: "Invalid amount" };
+  }
+
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    // Store donation record
+    const [donation] = await db
+      .insert(donations)
+      .values({
+        userId,
+        amount: amountCents,
+        message: message?.trim() || null,
+        status: "pending",
+      })
+      .returning({ id: donations.id });
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Support Softball IQ",
+              description: "Thank you for supporting girls\' softball education!",
+            },
+            unit_amount: amountCents,
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `https://softballiq.app/donate/thanks?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://softballiq.app/donate`,
+      metadata: {
+        donationId: donation.id,
+        message: message?.trim() || "",
+      },
+    });
+
+    // Update with stripe session ID
+    await db
+      .update(donations)
+      .set({ stripeSessionId: checkoutSession.id })
+      .where(eq(donations.id, donation.id));
+
+    return { success: true, url: checkoutSession.url };
+  } catch (e) {
+    console.error("Stripe checkout error:", e);
+    return { success: false, error: "Failed to create checkout session" };
+  }
+}
+
+export async function completeDonation(sessionId: string) {
+  if (!sessionId || !process.env.STRIPE_SECRET_KEY) return { success: false };
+
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status === "paid") {
+      await db
+        .update(donations)
+        .set({ status: "completed" })
+        .where(eq(donations.stripeSessionId, sessionId));
+
+      // Also store the feedback message if provided
+      const donationMessage = session.metadata?.message;
+      const donationId = session.metadata?.donationId;
+      if (donationMessage && donationId) {
+        // Get the donation to find the userId
+        const [donation] = await db
+          .select({ userId: donations.userId })
+          .from(donations)
+          .where(eq(donations.id, donationId))
+          .limit(1);
+
+        if (donation?.userId) {
+          await db.insert(feedback).values({
+            userId: donation.userId,
+            message: `[Donation] ${donationMessage}`,
+          });
+        }
+      }
+
+      return { success: true };
+    }
+    return { success: false };
+  } catch (e) {
+    console.error("Complete donation error:", e);
+    return { success: false };
+  }
 }
 
 function generateJoinCode(): string {
