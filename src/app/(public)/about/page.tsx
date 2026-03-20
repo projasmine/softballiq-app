@@ -17,9 +17,6 @@ import {
   ClipboardList,
   BarChart3,
   Check,
-  Sparkles,
-  Target,
-  BookOpen,
 } from "lucide-react";
 
 export const metadata = {
@@ -137,88 +134,6 @@ export default function AboutPage() {
             </CardContent>
           </Card>
         </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="space-y-4">
-        <div className="text-center space-y-1">
-          <h2 className="text-lg font-bold">Plans</h2>
-          <p className="text-xs text-muted-foreground">
-            Free for everyone. Premium features coming soon.
-          </p>
-        </div>
-
-        {/* Free Tier */}
-        <Card className="border-primary/30">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Free</CardTitle>
-              <Badge className="text-[10px]">Current</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Everything you need to get started
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <FeatureItem text="Daily reps (5 questions/day)" />
-            <FeatureItem text="Team leaderboard" />
-            <FeatureItem text="Coach assignments with time limits" />
-            <FeatureItem text="Study mode for missed questions" />
-            <FeatureItem text="Daily streaks" />
-            <FeatureItem text="Age group-specific questions (8U-14U)" />
-          </CardContent>
-        </Card>
-
-        {/* Coach Pro */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Coach Pro
-              </CardTitle>
-              <Badge variant="outline" className="text-[10px]">
-                Coming Soon
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Advanced tools for competitive teams
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <FeatureItem text="Everything in Free" />
-            <FeatureItem text="Create custom questions for your team" />
-            <FeatureItem text="Advanced player analytics and trends" />
-            <FeatureItem text="Unlimited roster size" />
-            <FeatureItem text="Export progress reports (PDF/CSV)" />
-            <FeatureItem text="Manage multiple teams" />
-          </CardContent>
-        </Card>
-
-        {/* Player Pro */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Player Pro
-              </CardTitle>
-              <Badge variant="outline" className="text-[10px]">
-                Coming Soon
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Level up your game IQ faster
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <FeatureItem text="Everything in Free" />
-            <FeatureItem text="Unlimited study mode" />
-            <FeatureItem text="Position-specific drill sets" />
-            <FeatureItem text="Detailed progress insights by category" />
-            <FeatureItem text="Priority access to new question packs" />
-          </CardContent>
-        </Card>
       </section>
 
       {/* Bottom CTA */}
