@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { profiles, teamMembers, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Image from "next/image";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 export default async function AppLayout({
   children,
@@ -57,6 +58,7 @@ export default async function AppLayout({
       </header>
       <main className="max-w-lg mx-auto px-4 py-6">{children}</main>
       <BottomNav role={profile.role} />
+      <PWAInstallPrompt />
     </div>
   );
 }
