@@ -64,22 +64,20 @@ export async function GET() {
   const pageWidth = doc.internal.pageSize.getWidth();
   const centerX = pageWidth / 2;
 
-  // Colors
-  const gold: [number, number, number] = [201, 162, 39];
-  const dark: [number, number, number] = [26, 26, 46];
-  const gray: [number, number, number] = [120, 120, 140];
-  const white: [number, number, number] = [255, 255, 255];
+  // Colors — light/print-friendly theme
+  const gold: [number, number, number] = [180, 140, 20];
+  const darkText: [number, number, number] = [30, 30, 50];
+  const gray: [number, number, number] = [100, 100, 110];
+  const lightGray: [number, number, number] = [240, 240, 242];
 
-  // Background
-  doc.setFillColor(...dark);
-  doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), "F");
+  // White background (no full-page fill needed)
 
   // Gold header bar
   doc.setFillColor(...gold);
   doc.rect(0, 0, pageWidth, 40, "F");
 
   // Team name in header
-  doc.setTextColor(...dark);
+  doc.setTextColor(255, 255, 255);
   doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
   doc.text(membership.teamName, centerX, 20, { align: "center" });
@@ -99,7 +97,7 @@ export async function GET() {
   }
 
   // "Join Us" title
-  doc.setTextColor(...white);
+  doc.setTextColor(...darkText);
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
   doc.text("Join Us on Softball IQ", centerX, 82, { align: "center" });
@@ -113,7 +111,7 @@ export async function GET() {
   try {
     doc.addImage(qrDataUrl, "PNG", centerX - 30, 98, 60, 60);
   } catch {
-    doc.setTextColor(...white);
+    doc.setTextColor(...darkText);
     doc.text("QR Code", centerX, 128, { align: "center" });
   }
 
@@ -123,7 +121,7 @@ export async function GET() {
   doc.text("Scan the QR code with your phone camera", centerX, 166, { align: "center" });
 
   // Divider with "or"
-  doc.setDrawColor(80, 80, 100);
+  doc.setDrawColor(200, 200, 210);
   doc.line(30, 175, centerX - 10, 175);
   doc.line(centerX + 10, 175, pageWidth - 30, 175);
   doc.setFontSize(9);
@@ -131,7 +129,7 @@ export async function GET() {
   doc.text("or", centerX, 177, { align: "center" });
 
   // Manual join
-  doc.setTextColor(...white);
+  doc.setTextColor(...darkText);
   doc.setFontSize(11);
   doc.text("Go to softballiq.app/join", centerX, 187, { align: "center" });
 
@@ -146,14 +144,14 @@ export async function GET() {
   doc.roundedRect(centerX - 30, 198, 60, 16, 3, 3, "S");
   doc.setLineDashPattern([], 0);
 
-  doc.setTextColor(...white);
+  doc.setTextColor(...darkText);
   doc.setFontSize(22);
   doc.setFont("helvetica", "bold");
   doc.text(membership.joinCode, centerX, 209, { align: "center" });
 
   // Instructions box
   const instructionsY = 222;
-  doc.setFillColor(35, 35, 55);
+  doc.setFillColor(...lightGray);
   doc.roundedRect(25, instructionsY, pageWidth - 50, 42, 3, 3, "F");
 
   doc.setTextColor(...gold);
@@ -161,7 +159,7 @@ export async function GET() {
   doc.setFont("helvetica", "bold");
   doc.text("HOW TO JOIN", 32, instructionsY + 8);
 
-  doc.setTextColor(...white);
+  doc.setTextColor(...darkText);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   const steps = [
@@ -176,7 +174,7 @@ export async function GET() {
   // Roster section (if players exist)
   if (players.length > 0) {
     const rosterY = 272;
-    doc.setFillColor(35, 35, 55);
+    doc.setFillColor(...lightGray);
     const rosterHeight = Math.min(12 + players.length * 6, 50);
     doc.roundedRect(25, rosterY, pageWidth - 50, rosterHeight, 3, 3, "F");
 
@@ -185,7 +183,7 @@ export async function GET() {
     doc.setFont("helvetica", "bold");
     doc.text("TEAM ROSTER \u2014 FIND YOUR NAME", 32, rosterY + 8);
 
-    doc.setTextColor(...white);
+    doc.setTextColor(...darkText);
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     const names = players.map((p) => p.displayName).join("  \u2022  ");
