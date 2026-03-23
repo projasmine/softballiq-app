@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Printer, ArrowLeft } from "lucide-react";
+import { Printer, ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 
 interface FlyerViewProps {
@@ -25,10 +25,18 @@ export function FlyerView({ teamName, joinCode, ageGroup, joinUrl }: FlyerViewPr
               Back
             </Link>
           </Button>
-          <Button size="sm" onClick={() => window.print()}>
-            <Printer className="h-4 w-4 mr-1.5" />
-            Print Flyer
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => window.print()}>
+              <Printer className="h-4 w-4 mr-1.5" />
+              Print
+            </Button>
+            <Button size="sm" asChild>
+              <a href="/api/team/flyer" target="_blank">
+                <Download className="h-4 w-4 mr-1.5" />
+                Download PDF
+              </a>
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground text-center">
           Print this page or use &quot;Save as PDF&quot; to share with your team.

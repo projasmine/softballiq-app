@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer, MessageSquare } from "lucide-react";
+import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer, Download, MessageSquare } from "lucide-react";
 import { WeeklyDigest } from "@/components/dashboard/weekly-digest";
 import { useState } from "react";
 import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
@@ -150,18 +150,30 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                 </Button>
               </div>
 
-              {/* Print flyer link */}
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-              >
-                <Link href="/team/flyer">
-                  <Printer className="h-3.5 w-3.5 mr-1.5" />
-                  Print Team Flyer
-                </Link>
-              </Button>
+              {/* Flyer actions */}
+              <div className="flex gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs"
+                >
+                  <Link href="/team/flyer">
+                    <Printer className="h-3.5 w-3.5 mr-1.5" />
+                    Print Flyer
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className="flex-1 text-xs"
+                >
+                  <a href="/api/team/flyer" target="_blank">
+                    <Download className="h-3.5 w-3.5 mr-1.5" />
+                    Download PDF
+                  </a>
+                </Button>
+              </div>
 
               {/* QR Code */}
               {showQR && (
