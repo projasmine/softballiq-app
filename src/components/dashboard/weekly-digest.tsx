@@ -1,11 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, ArrowUpDown } from "lucide-react";
 import { getWeeklyDigest } from "@/app/actions";
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+
+type SortOption = "alpha" | "completion" | "streak" | "behind";
+
+const SORT_LABELS: Record<SortOption, string> = {
+  alpha: "A–Z",
+  completion: "Most Reps",
+  behind: "Needs Work",
+  streak: "Streak",
+};
+
+const SORT_ORDER: SortOption[] = ["alpha", "completion", "behind", "streak"];
 
 interface DigestData {
   players: {
@@ -19,6 +30,7 @@ interface DigestData {
 export function WeeklyDigest() {
   const [data, setData] = useState<DigestData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState<SortOption>("completion");
 
   useEffect(() => {
     getWeeklyDigest()
@@ -27,6 +39,37 @@ export function WeeklyDigest() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const cycleSort = () => {
+    const idx = SORT_ORDER.indexOf(sort);
+    setSort(SORT_ORDER[(idx + 1) % SORT_ORDER.length]);
+  };
+
+  const sortedPlayers = useMemo(() => {
+    if (!data) return [];
+    const todayIdx = data.todayIndex;
+
+    return [...data.players].sort((a, b) => {
+      const aCompleted = a.completions.filter(Boolean).length;
+      const bCompleted = b.completions.filter(Boolean).length;
+      // Current streak = consecutive days completed ending at today or yesterday
+      const aStreak = countStreak(a.completions, todayIdx);
+      const bStreak = countStreak(b.completions, todayIdx);
+
+      switch (sort) {
+        case "alpha":
+          return a.displayName.localeCompare(b.displayName);
+        case "completion":
+          return bCompleted - aCompleted || a.displayName.localeCompare(b.displayName);
+        case "behind":
+          return aCompleted - bCompleted || a.displayName.localeCompare(b.displayName);
+        case "streak":
+          return bStreak - aStreak || bCompleted - aCompleted;
+        default:
+          return 0;
+      }
+    });
+  }, [data, sort]);
 
   if (loading) {
     return (
@@ -58,14 +101,23 @@ export function WeeklyDigest() {
     );
   }
 
-  const { players, todayIndex } = data;
+  const { todayIndex } = data;
 
   return (
     <Card>
       <CardContent className="pt-4 space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Weekly Reps
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Weekly Reps
+          </p>
+          <button
+            onClick={cycleSort}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-0.5 rounded border border-border"
+          >
+            <ArrowUpDown className="h-3 w-3" />
+            {SORT_LABELS[sort]}
+          </button>
+        </div>
 
         {/* Header row */}
         <div className="grid" style={{ gridTemplateColumns: "1fr repeat(7, 32px) 48px" }}>
@@ -83,13 +135,13 @@ export function WeeklyDigest() {
             </div>
           ))}
           <div className="text-center text-[10px] font-semibold text-muted-foreground pb-1">
-            %
+            #
           </div>
         </div>
 
         {/* Player rows */}
         <div className="space-y-1.5">
-          {players.map((player) => {
+          {sortedPlayers.map((player) => {
             const completed = player.completions.filter(Boolean).length;
             const daysElapsed = todayIndex + 1;
 
@@ -134,4 +186,14 @@ export function WeeklyDigest() {
       </CardContent>
     </Card>
   );
+}
+
+/** Count consecutive completed days ending at or before todayIndex */
+function countStreak(completions: boolean[], todayIndex: number): number {
+  let streak = 0;
+  for (let i = todayIndex; i >= 0; i--) {
+    if (completions[i]) streak++;
+    else break;
+  }
+  return streak;
 }
