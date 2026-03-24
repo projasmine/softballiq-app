@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer, Download, MessageSquare } from "lucide-react";
+import { Users, ClipboardList, Plus, Copy, Check, Share2, QrCode, Link2, Printer, Download, MessageSquare, Video } from "lucide-react";
 import { WeeklyDigest } from "@/components/dashboard/weekly-digest";
 import { useState } from "react";
 import { formatRelativeDate, categoryColorClass, categoryLabel, difficultyLabel } from "@/lib/utils";
@@ -197,7 +197,7 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
           <WeeklyDigest />
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Button asChild variant="outline" className="h-auto py-4">
               <Link
                 href="/team"
@@ -213,7 +213,16 @@ export function CoachDashboard({ data }: CoachDashboardProps) {
                 className="flex flex-col items-center gap-2"
               >
                 <Plus className="h-5 w-5" />
-                <span className="text-xs">New Assignment</span>
+                <span className="text-xs">New Quiz</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-auto py-4">
+              <Link
+                href="/assignments/new-video"
+                className="flex flex-col items-center gap-2"
+              >
+                <Video className="h-5 w-5" />
+                <span className="text-xs">New Video</span>
               </Link>
             </Button>
             <Button
