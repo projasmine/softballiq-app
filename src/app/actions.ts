@@ -1240,6 +1240,42 @@ export async function addPlayerToRoster(playerName: string) {
   return { success: true };
 }
 
+export async function renamePlayer(playerId: string, newName: string) {
+  const userId = await requireUserId();
+
+  if (!newName.trim()) return { success: false, error: "Name is required" };
+
+  // Verify caller is a coach on the same team
+  const [coachMembership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach")))
+    .limit(1);
+
+  if (!coachMembership) return { success: false, error: "Not authorized" };
+
+  const [playerMembership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(
+      and(
+        eq(teamMembers.userId, playerId),
+        eq(teamMembers.teamId, coachMembership.teamId)
+      )
+    )
+    .limit(1);
+
+  if (!playerMembership) return { success: false, error: "Player not on your team" };
+
+  await db
+    .update(profiles)
+    .set({ displayName: newName.trim(), updatedAt: new Date() })
+    .where(eq(profiles.id, playerId));
+
+  revalidatePath("/team");
+  return { success: true };
+}
+
 export async function getTeamByCode(joinCode: string) {
   if (!joinCode.trim()) return null;
 

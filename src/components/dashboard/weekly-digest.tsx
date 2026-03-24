@@ -91,9 +91,7 @@ export function WeeklyDigest() {
         <div className="space-y-1.5">
           {players.map((player) => {
             const completed = player.completions.filter(Boolean).length;
-            // Percentage based on days elapsed so far (todayIndex + 1)
             const daysElapsed = todayIndex + 1;
-            const pct = daysElapsed > 0 ? Math.round((completed / daysElapsed) * 100) : 0;
 
             return (
               <div
@@ -120,14 +118,14 @@ export function WeeklyDigest() {
                 ))}
                 <p
                   className={`text-center text-xs font-semibold ${
-                    pct === 100
+                    completed === daysElapsed
                       ? "text-green-500"
-                      : pct >= 50
+                      : completed > 0
                         ? "text-primary"
                         : "text-muted-foreground"
                   }`}
                 >
-                  {pct}%
+                  {completed}/{daysElapsed}
                 </p>
               </div>
             );

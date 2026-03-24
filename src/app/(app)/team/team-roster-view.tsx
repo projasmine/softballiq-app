@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, Target, Flame, ChevronRight, Plus, UserPlus } from "lucide-react";
+import { Copy, Check, Target, Flame, ChevronRight, Plus, UserPlus, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { addPlayerToRoster } from "@/app/actions";
+import { addPlayerToRoster, renamePlayer } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 interface TeamRosterViewProps {
@@ -134,32 +134,108 @@ export function TeamRosterView({ members, joinCode }: TeamRosterViewProps) {
           </Card>
         ) : (
           players.map((player) => (
-            <Link key={player.userId} href={`/team/${player.userId}`}>
-              <Card className="hover:border-primary/30 transition-colors">
-                <CardContent className="pt-3 pb-3 flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">
-                      {player.displayName}
-                    </p>
-                    <div className="flex gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Target className="h-3 w-3" />
-                        {player.accuracy}%
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Flame className="h-3 w-3 text-orange-500" />
-                        {player.currentStreak}d
-                      </span>
-                      <span>{player.quizCount} quizzes</span>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </CardContent>
-              </Card>
-            </Link>
+            <PlayerRow key={player.userId} player={player} onRenamed={() => router.refresh()} />
           ))
         )}
       </div>
     </div>
+  );
+}
+
+function PlayerRow({
+  player,
+  onRenamed,
+}: {
+  player: TeamRosterViewProps["members"][number];
+  onRenamed: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(player.displayName);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!name.trim() || name.trim() === player.displayName) {
+      setEditing(false);
+      setName(player.displayName);
+      return;
+    }
+    setSaving(true);
+    const result = await renamePlayer(player.userId, name);
+    if (result.success) {
+      setEditing(false);
+      onRenamed();
+    }
+    setSaving(false);
+  };
+
+  if (editing) {
+    return (
+      <Card className="border-primary/30">
+        <CardContent className="pt-3 pb-3 flex items-center gap-2">
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+              if (e.key === "Escape") {
+                setEditing(false);
+                setName(player.displayName);
+              }
+            }}
+            className="h-8 text-sm"
+            autoFocus
+            disabled={saving}
+          />
+          <Button size="sm" variant="ghost" onClick={handleSave} disabled={saving}>
+            <Check className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setEditing(false);
+              setName(player.displayName);
+            }}
+            disabled={saving}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="hover:border-primary/30 transition-colors">
+      <CardContent className="pt-3 pb-3 flex items-center gap-3">
+        <Link href={`/team/${player.userId}`} className="flex-1 min-w-0">
+          <p className="font-medium truncate">{player.displayName}</p>
+          <div className="flex gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Target className="h-3 w-3" />
+              {player.accuracy}%
+            </span>
+            <span className="flex items-center gap-1">
+              <Flame className="h-3 w-3 text-orange-500" />
+              {player.currentStreak}d
+            </span>
+            <span>{player.quizCount} quizzes</span>
+          </div>
+        </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            setEditing(true);
+          }}
+        >
+          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+        </Button>
+        <Link href={`/team/${player.userId}`}>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
+      </CardContent>
+    </Card>
   );
 }
