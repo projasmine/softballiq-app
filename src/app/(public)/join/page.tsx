@@ -38,6 +38,7 @@ function JoinTeamContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [signingIn, setSigningIn] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<{ userId: string; displayName: string } | null>(null);
 
   // Auto-fill and auto-lookup from URL query param
   useEffect(() => {
@@ -106,6 +107,55 @@ function JoinTeamContent() {
     }
   };
 
+  // Step 3: Confirm your name
+  if (team && selectedPlayer) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center space-y-3">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">{selectedPlayer.displayName}</CardTitle>
+              <CardDescription className="mt-1">
+                Is this you? Your daily reps and scores will be saved under this name.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={signingIn !== null}
+              onClick={() => handlePickPlayer(selectedPlayer.userId)}
+            >
+              {signingIn ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              {signingIn ? "Signing in..." : `Yes, I'm ${selectedPlayer.displayName}`}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={signingIn !== null}
+              onClick={() => {
+                setSelectedPlayer(null);
+                setError("");
+              }}
+            >
+              That&apos;s not me
+            </Button>
+
+            {error && (
+              <p className="text-sm text-destructive text-center pt-2">{error}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Step 2: Pick your name
   if (team) {
     return (
@@ -121,14 +171,10 @@ function JoinTeamContent() {
                 key={player.userId}
                 variant="outline"
                 className="w-full justify-start h-auto py-3"
-                disabled={signingIn !== null}
-                onClick={() => handlePickPlayer(player.userId)}
+                onClick={() => setSelectedPlayer(player)}
               >
                 <User className="h-4 w-4 mr-3 text-muted-foreground" />
                 <span className="font-medium">{player.displayName}</span>
-                {signingIn === player.userId && (
-                  <Loader2 className="h-4 w-4 animate-spin ml-auto" />
-                )}
               </Button>
             ))}
 
@@ -141,6 +187,7 @@ function JoinTeamContent() {
               className="w-full mt-2"
               onClick={() => {
                 setTeam(null);
+                setSelectedPlayer(null);
                 setError("");
               }}
             >
