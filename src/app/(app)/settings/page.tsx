@@ -14,12 +14,13 @@ import {
   updateTeamTheme,
   updateTeamSettings,
   submitFeedback,
+  redeemPromoCode,
 } from "@/app/actions";
 import type { TeamSettings } from "@/lib/db/schema";
 import { DEFAULT_TEAM_SETTINGS } from "@/lib/db/schema";
 import { categoryLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trash2, Palette, MessageSquare, Heart, Settings2, Check } from "lucide-react";
+import { Loader2, Trash2, Palette, MessageSquare, Heart, Settings2, Check, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -394,6 +395,20 @@ export default function SettingsPage() {
         </Card>
       )}
 
+      {/* Promo Code — coaches without Pro */}
+      {role === "coach" && teamId && plan !== "pro" && <PromoCodeCard onUpgrade={() => setPlan("pro")} />}
+
+      {/* Pro Badge — coaches with Pro */}
+      {role === "coach" && plan === "pro" && (
+        <Card>
+          <CardContent className="py-4 flex items-center gap-2">
+            <Ticket className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Pro plan active</span>
+            <Badge className="ml-auto text-[10px]">Pro</Badge>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Delete Team — coaches only */}
       {role === "coach" && teamId && (
         <Card className="border-red-500/20">
@@ -458,6 +473,66 @@ export default function SettingsPage() {
         Sign Out
       </Button>
     </div>
+  );
+}
+
+function PromoCodeCard({ onUpgrade }: { onUpgrade: () => void }) {
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const handleRedeem = async () => {
+    if (!code.trim()) return;
+    setRedeeming(true);
+    setError("");
+    setSuccess(false);
+    const result = await redeemPromoCode(code);
+    if (result.success) {
+      setSuccess(true);
+      setCode("");
+      onUpgrade();
+    } else {
+      setError(result.error || "Failed to redeem code");
+    }
+    setRedeeming(false);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-1.5">
+          <Ticket className="h-4 w-4" />
+          Promo Code
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">
+          Have a promo code? Enter it below to unlock Pro features for your team.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter code"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            className="flex-1"
+          />
+          <Button
+            size="sm"
+            onClick={handleRedeem}
+            disabled={redeeming || !code.trim()}
+          >
+            {redeeming ? "..." : "Redeem"}
+          </Button>
+        </div>
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        {success && (
+          <p className="text-sm text-green-500">
+            Pro plan activated! Enjoy all features.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

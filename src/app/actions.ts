@@ -18,6 +18,7 @@ import {
   passwordResetTokens,
   feedback,
   donations,
+  promoCodes,
 } from "@/lib/db/schema";
 import type { QuestionOption, TeamSettings } from "@/lib/db/schema";
 import { DEFAULT_TEAM_SETTINGS } from "@/lib/db/schema";
@@ -2365,4 +2366,181 @@ export async function getAdminFeedback() {
     .orderBy(desc(feedback.createdAt));
 
   return rows;
+}
+
+// ─── Promo Code Actions ─────────────────────────────────
+
+export async function createPromoCode(
+  code: string,
+  description: string,
+  maxUses?: number,
+  expiresAt?: Date
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  const [user] = await db
+    .select({ email: profiles.email })
+    .from(profiles)
+    .where(eq(profiles.id, session.user.id))
+    .limit(1);
+
+  if (user?.email !== "projasmine@me.com") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  if (!normalizedCode) {
+    return { success: false, error: "Code is required" };
+  }
+
+  try {
+    const [created] = await db
+      .insert(promoCodes)
+      .values({
+        code: normalizedCode,
+        description: description || null,
+        maxUses: maxUses ?? null,
+        expiresAt: expiresAt ?? null,
+      })
+      .returning({ id: promoCodes.id, code: promoCodes.code });
+
+    revalidatePath("/admin/promo");
+    return { success: true, code: created.code };
+  } catch {
+    return { success: false, error: "Code already exists or invalid" };
+  }
+}
+
+export async function getPromoCodes() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  const [user] = await db
+    .select({ email: profiles.email })
+    .from(profiles)
+    .where(eq(profiles.id, session.user.id))
+    .limit(1);
+
+  if (user?.email !== "projasmine@me.com") {
+    return null;
+  }
+
+  const rows = await db
+    .select()
+    .from(promoCodes)
+    .orderBy(desc(promoCodes.createdAt));
+
+  return rows;
+}
+
+export async function deactivatePromoCode(codeId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  const [user] = await db
+    .select({ email: profiles.email })
+    .from(profiles)
+    .where(eq(profiles.id, session.user.id))
+    .limit(1);
+
+  if (user?.email !== "projasmine@me.com") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const [code] = await db
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.id, codeId))
+    .limit(1);
+
+  if (!code) {
+    return { success: false, error: "Code not found" };
+  }
+
+  await db
+    .update(promoCodes)
+    .set({ maxUses: code.currentUses })
+    .where(eq(promoCodes.id, codeId));
+
+  revalidatePath("/admin/promo");
+  return { success: true };
+}
+
+export async function redeemPromoCode(code: string) {
+  const userId = await requireUserId();
+
+  // Verify coach role
+  const [profile] = await db
+    .select({
+      role: profiles.role,
+      plan: profiles.plan,
+      email: profiles.email,
+    })
+    .from(profiles)
+    .where(eq(profiles.id, userId))
+    .limit(1);
+
+  if (!profile || profile.role !== "coach") {
+    return { success: false, error: "Only coaches can redeem promo codes" };
+  }
+
+  if (profile.plan === "pro") {
+    return { success: false, error: "You already have Pro access" };
+  }
+
+  // Get the coach's team
+  const [membership] = await db
+    .select({ teamId: teamMembers.teamId })
+    .from(teamMembers)
+    .where(
+      and(eq(teamMembers.userId, userId), eq(teamMembers.role, "coach"))
+    )
+    .limit(1);
+
+  if (!membership) {
+    return { success: false, error: "You need a team to redeem a promo code" };
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+
+  const [promo] = await db
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.code, normalizedCode))
+    .limit(1);
+
+  if (!promo) {
+    return { success: false, error: "Invalid promo code" };
+  }
+
+  // Check expiry
+  if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
+    return { success: false, error: "This promo code has expired" };
+  }
+
+  // Check max uses
+  if (promo.maxUses !== null && promo.currentUses >= promo.maxUses) {
+    return { success: false, error: "This promo code has reached its usage limit" };
+  }
+
+  // Apply: upgrade coach to pro, tag team with promo code, increment uses
+  await db
+    .update(profiles)
+    .set({ plan: "pro" })
+    .where(eq(profiles.id, userId));
+
+  await db
+    .update(teams)
+    .set({ promoCode: normalizedCode })
+    .where(eq(teams.id, membership.teamId));
+
+  await db
+    .update(promoCodes)
+    .set({ currentUses: promo.currentUses + 1 })
+    .where(eq(promoCodes.id, promo.id));
+
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  return { success: true };
 }

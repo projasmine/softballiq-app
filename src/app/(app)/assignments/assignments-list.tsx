@@ -122,8 +122,8 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
             key={`video-${video.id}`}
             className={hasCommented ? "border-green-500/20" : ""}
           >
-            {/* YouTube Thumbnail Preview */}
-            {youtubeId && (
+            {/* Video Thumbnail Preview */}
+            {youtubeId ? (
               <Link href={`/assignments/video/${video.id}`} className="block">
                 <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
                   <Image
@@ -140,7 +140,15 @@ export function AssignmentsList({ data, videoData, userId }: AssignmentsListProp
                   </div>
                 </div>
               </Link>
-            )}
+            ) : video.videoUrl.startsWith("http") ? (
+              <Link href={`/assignments/video/${video.id}`} className="block">
+                <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted flex items-center justify-center">
+                  <div className="rounded-full bg-primary/80 p-2">
+                    <Play className="h-5 w-5 text-white fill-white" />
+                  </div>
+                </div>
+              </Link>
+            ) : null}
             <CardContent className="pt-4 space-y-2">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

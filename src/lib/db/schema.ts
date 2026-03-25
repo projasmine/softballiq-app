@@ -77,6 +77,7 @@ export const teams = pgTable("teams", {
   theme: text("theme").default("default"),
   joinCode: varchar("join_code", { length: 8 }).notNull().unique(),
   settings: jsonb("settings").$type<TeamSettings>().default({ questionsPerRep: 5, leaderboardReset: "weekly", categoryFocus: [] }),
+  promoCode: text("promo_code"),
   createdBy: uuid("created_by")
     .references(() => profiles.id)
     .notNull(),
@@ -306,6 +307,18 @@ export const donations = pgTable("donations", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
+});
+
+// ─── Promo Codes ─────────────────────────────────────
+export const promoCodes = pgTable("promo_codes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: text("code").notNull().unique(),
+  description: text("description"),
+  grantsPro: boolean("grants_pro").notNull().default(true),
+  maxUses: integer("max_uses"), // null = unlimited
+  currentUses: integer("current_uses").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // ─── Password Reset Tokens ────────────────────────────

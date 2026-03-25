@@ -60,7 +60,7 @@ export default async function VideoWatchPage({
         <p className="text-sm text-muted-foreground">{video.description}</p>
       )}
 
-      {/* YouTube Embed */}
+      {/* Video Player */}
       {youtubeId ? (
         <div className="aspect-video rounded-lg overflow-hidden bg-black">
           <iframe
@@ -71,10 +71,20 @@ export default async function VideoWatchPage({
             title={video.title}
           />
         </div>
+      ) : video.videoUrl.startsWith("http") ? (
+        <div className="aspect-video rounded-lg overflow-hidden bg-black">
+          <video
+            src={video.videoUrl}
+            className="w-full h-full"
+            controls
+            preload="metadata"
+            playsInline
+          />
+        </div>
       ) : (
         <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
           <p className="text-muted-foreground text-sm">
-            Could not load video. <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="underline">Open in YouTube</a>
+            Could not load video.
           </p>
         </div>
       )}
