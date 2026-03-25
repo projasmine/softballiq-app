@@ -19,7 +19,8 @@ import {
   feedback,
   donations,
 } from "@/lib/db/schema";
-import type { QuestionOption } from "@/lib/db/schema";
+import type { QuestionOption, TeamSettings } from "@/lib/db/schema";
+import { DEFAULT_TEAM_SETTINGS } from "@/lib/db/schema";
 import { eq, and, desc, sql, inArray, lt, gte } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
@@ -211,25 +212,36 @@ export async function startDailyRep() {
     recentQuestionIds = recentAnswers.map((a) => a.questionId);
   }
 
-  // Get team age group for filtering
+  // Get team age group and settings for filtering
   let teamAgeGroup: string | null = null;
+  let teamSettings: TeamSettings = { ...DEFAULT_TEAM_SETTINGS };
   if (membership?.teamId) {
     const [team] = await db
-      .select({ ageGroup: teams.ageGroup })
+      .select({ ageGroup: teams.ageGroup, settings: teams.settings })
       .from(teams)
       .where(eq(teams.id, membership.teamId))
       .limit(1);
     teamAgeGroup = team?.ageGroup ?? null;
+    if (team?.settings) {
+      teamSettings = { ...DEFAULT_TEAM_SETTINGS, ...team.settings };
+    }
   }
 
-  // Get 5 questions, preferring position-relevant ones, filtered by age group
+  const questionsPerRep = teamSettings.questionsPerRep;
+  const categoryFocus = teamSettings.categoryFocus;
+
+  // Build query filter: age group + category focus
   const ageFilter = teamAgeGroup
     ? sql`${questions.ageGroups} @> ${JSON.stringify([teamAgeGroup])}::jsonb`
-    : undefined;
+    : sql`true`;
+  const catFilter = categoryFocus.length > 0
+    ? sql`${questions.category} IN (${sql.join(categoryFocus.map(c => sql`${c}`), sql`, `)})`
+    : sql`true`;
+
   let questionPool = await db
     .select()
     .from(questions)
-    .where(ageFilter)
+    .where(sql`${ageFilter} AND ${catFilter}`)
     .orderBy(sql`RANDOM()`)
     .limit(20);
 
@@ -250,8 +262,8 @@ export async function startDailyRep() {
   );
 
   const selectedQuestions = (
-    positionQuestions.length >= 5 ? positionQuestions : questionPool
-  ).slice(0, 5);
+    positionQuestions.length >= questionsPerRep ? positionQuestions : questionPool
+  ).slice(0, questionsPerRep);
 
   if (selectedQuestions.length === 0) {
     return { success: false, error: "No questions available" };
@@ -658,6 +670,7 @@ export async function getDashboardData() {
       joinCode: teams.joinCode,
       ageGroup: teams.ageGroup,
       theme: teams.theme,
+      settings: teams.settings,
     })
     .from(teamMembers)
     .innerJoin(teams, eq(teams.id, teamMembers.teamId))
@@ -830,13 +843,16 @@ export async function getLeaderboardData() {
     .where(eq(teamMembers.userId, userId))
     .limit(1);
 
-  if (!membership) return { players: [], teamName: "" };
+  if (!membership) return { players: [], teamName: "", weekOf: null, leaderboardReset: "weekly" as const, allTimeMVP: null };
 
   const [team] = await db
     .select()
     .from(teams)
     .where(eq(teams.id, membership.teamId))
     .limit(1);
+
+  const teamSettings: TeamSettings = { ...DEFAULT_TEAM_SETTINGS, ...team?.settings };
+  const leaderboardReset = teamSettings.leaderboardReset;
 
   // Get all team members
   const members = await db
@@ -854,27 +870,37 @@ export async function getLeaderboardData() {
       )
     );
 
-  // Calculate Monday of current week for weekly leaderboard
+  // Calculate period start based on leaderboard reset setting
   const now = new Date();
-  const dayOfWeek = now.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const weekStart = new Date(now);
-  weekStart.setHours(0, 0, 0, 0);
-  weekStart.setDate(weekStart.getDate() + mondayOffset);
+  let periodStart: Date | null = null;
 
-  // Get scores for each member (this week only)
+  if (leaderboardReset === "weekly") {
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    periodStart = new Date(now);
+    periodStart.setHours(0, 0, 0, 0);
+    periodStart.setDate(periodStart.getDate() + mondayOffset);
+  } else if (leaderboardReset === "monthly") {
+    periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    periodStart.setHours(0, 0, 0, 0);
+  }
+  // "season" → no date filter (periodStart stays null)
+
+  // Get scores for each member within the period
   const playerScores = await Promise.all(
     members.map(async (member) => {
+      const attemptFilters = [
+        eq(quizAttempts.userId, member.userId),
+        eq(quizAttempts.teamId, membership.teamId),
+      ];
+      if (periodStart) {
+        attemptFilters.push(gte(quizAttempts.createdAt, periodStart));
+      }
+
       const attempts = await db
         .select()
         .from(quizAttempts)
-        .where(
-          and(
-            eq(quizAttempts.userId, member.userId),
-            eq(quizAttempts.teamId, membership.teamId),
-            gte(quizAttempts.createdAt, weekStart)
-          )
-        );
+        .where(and(...attemptFilters));
 
       const totalScore = attempts.reduce((sum, a) => sum + (a.score || 0), 0);
       const totalQuestions = attempts.reduce(
@@ -888,19 +914,21 @@ export async function getLeaderboardData() {
         .where(eq(dailyStreaks.userId, member.userId))
         .limit(1);
 
-      // Average response time for correct answers (this week)
+      // Average response time for correct answers within the period
+      const responseTimeFilters = [
+        eq(quizAttempts.userId, member.userId),
+        eq(quizAnswers.isCorrect, true),
+        sql`${quizAnswers.responseTimeMs} IS NOT NULL`,
+      ];
+      if (periodStart) {
+        responseTimeFilters.push(gte(quizAnswers.answeredAt, periodStart));
+      }
+
       const responseTimes = await db
         .select({ responseTimeMs: quizAnswers.responseTimeMs })
         .from(quizAnswers)
         .innerJoin(quizAttempts, eq(quizAttempts.id, quizAnswers.attemptId))
-        .where(
-          and(
-            eq(quizAttempts.userId, member.userId),
-            eq(quizAnswers.isCorrect, true),
-            sql`${quizAnswers.responseTimeMs} IS NOT NULL`,
-            gte(quizAnswers.answeredAt, weekStart)
-          )
-        );
+        .where(and(...responseTimeFilters));
 
       const validTimes = responseTimes
         .map((r) => r.responseTimeMs)
@@ -957,7 +985,8 @@ export async function getLeaderboardData() {
   return {
     players: playerScores,
     teamName: team?.name ?? "",
-    weekOf: weekStart.toISOString(),
+    weekOf: periodStart?.toISOString() ?? null,
+    leaderboardReset,
     allTimeMVP,
   };
 }
@@ -1950,6 +1979,79 @@ export async function updateTeamTheme(theme: string) {
 
   revalidatePath("/dashboard");
   revalidatePath("/settings");
+  return { success: true };
+}
+
+const VALID_LEADERBOARD_RESETS = ["weekly", "monthly", "season"] as const;
+const VALID_CATEGORIES = ["baserunning", "fielding", "hitting", "general"];
+
+export async function updateTeamSettings(settings: Partial<TeamSettings>) {
+  const userId = await requireUserId();
+
+  // Verify user is a coach on a team
+  const [membership] = await db
+    .select({ teamId: teamMembers.teamId, role: teamMembers.role })
+    .from(teamMembers)
+    .where(eq(teamMembers.userId, userId))
+    .limit(1);
+
+  if (!membership || membership.role !== "coach") {
+    return { success: false, error: "Only coaches can change team settings" };
+  }
+
+  // Validate questionsPerRep
+  if (settings.questionsPerRep !== undefined) {
+    if (
+      typeof settings.questionsPerRep !== "number" ||
+      settings.questionsPerRep < 3 ||
+      settings.questionsPerRep > 15
+    ) {
+      return { success: false, error: "Questions per rep must be between 3 and 15" };
+    }
+  }
+
+  // Validate leaderboardReset
+  if (settings.leaderboardReset !== undefined) {
+    if (!VALID_LEADERBOARD_RESETS.includes(settings.leaderboardReset as typeof VALID_LEADERBOARD_RESETS[number])) {
+      return { success: false, error: "Invalid leaderboard reset value" };
+    }
+  }
+
+  // Validate categoryFocus
+  if (settings.categoryFocus !== undefined) {
+    if (!Array.isArray(settings.categoryFocus)) {
+      return { success: false, error: "Category focus must be an array" };
+    }
+    if (settings.categoryFocus.some((c) => !VALID_CATEGORIES.includes(c))) {
+      return { success: false, error: "Invalid category in category focus" };
+    }
+  }
+
+  // Merge with existing settings
+  const [team] = await db
+    .select({ settings: teams.settings })
+    .from(teams)
+    .where(eq(teams.id, membership.teamId))
+    .limit(1);
+
+  const currentSettings: TeamSettings = {
+    ...DEFAULT_TEAM_SETTINGS,
+    ...team?.settings,
+  };
+
+  const newSettings: TeamSettings = {
+    ...currentSettings,
+    ...settings,
+  };
+
+  await db
+    .update(teams)
+    .set({ settings: newSettings })
+    .where(eq(teams.id, membership.teamId));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/settings");
+  revalidatePath("/leaderboard");
   return { success: true };
 }
 

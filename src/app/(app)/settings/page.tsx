@@ -12,10 +12,14 @@ import {
   getDashboardData,
   deleteTeam,
   updateTeamTheme,
+  updateTeamSettings,
   submitFeedback,
 } from "@/app/actions";
+import type { TeamSettings } from "@/lib/db/schema";
+import { DEFAULT_TEAM_SETTINGS } from "@/lib/db/schema";
+import { categoryLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trash2, Palette, MessageSquare, Heart } from "lucide-react";
+import { Loader2, Trash2, Palette, MessageSquare, Heart, Settings2, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -60,6 +64,8 @@ export default function SettingsPage() {
   const [plan, setPlan] = useState("free");
   const [currentTheme, setCurrentTheme] = useState("default");
   const [savingTheme, setSavingTheme] = useState(false);
+  const [teamSettings, setTeamSettings] = useState<TeamSettings>({ ...DEFAULT_TEAM_SETTINGS });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -76,6 +82,9 @@ export default function SettingsPage() {
           setTeamName(data.membership.teamName);
           setTeamId(data.membership.teamId);
           setCurrentTheme(data.membership.theme ?? "default");
+          if (data.membership.settings) {
+            setTeamSettings({ ...DEFAULT_TEAM_SETTINGS, ...data.membership.settings });
+          }
         }
       } catch {
         // Failed to load settings
@@ -125,6 +134,31 @@ export default function SettingsPage() {
     } finally {
       setSavingProfile(false);
     }
+  };
+
+  const handleUpdateSettings = async (partial: Partial<TeamSettings>) => {
+    setSavingSettings(true);
+    // Optimistic update
+    setTeamSettings((prev) => ({ ...prev, ...partial }));
+    try {
+      await updateTeamSettings(partial);
+    } catch {
+      // Revert on error — reload from server
+      const data = await getDashboardData();
+      if (data?.membership?.settings) {
+        setTeamSettings({ ...DEFAULT_TEAM_SETTINGS, ...data.membership.settings });
+      }
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const toggleCategoryFocus = (category: string) => {
+    const current = teamSettings.categoryFocus;
+    const updated = current.includes(category)
+      ? current.filter((c) => c !== category)
+      : [...current, category];
+    handleUpdateSettings({ categoryFocus: updated });
   };
 
   const handleDeleteTeam = async () => {
@@ -260,6 +294,101 @@ export default function SettingsPage() {
                   <span className="text-[10px]">{t.label}</span>
                 </button>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Team Settings — coaches only */}
+      {role === "coach" && teamId && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-1.5">
+              <Settings2 className="h-4 w-4" />
+              Team Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {/* Questions per Rep */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Questions per Rep</Label>
+              <div className="flex gap-2">
+                {[3, 5, 7, 10].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => handleUpdateSettings({ questionsPerRep: n })}
+                    disabled={savingSettings}
+                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                      teamSettings.questionsPerRep === n
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Leaderboard Reset */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Leaderboard Reset</Label>
+              <div className="flex gap-2">
+                {(
+                  [
+                    { value: "weekly", label: "Weekly" },
+                    { value: "monthly", label: "Monthly" },
+                    { value: "season", label: "Season" },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleUpdateSettings({ leaderboardReset: option.value })}
+                    disabled={savingSettings}
+                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                      teamSettings.leaderboardReset === option.value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Category Focus */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Category Focus</Label>
+              <p className="text-xs text-muted-foreground">
+                Leave all unchecked to include all categories
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {(["baserunning", "fielding", "hitting", "general"] as const).map(
+                  (cat) => {
+                    const isChecked = teamSettings.categoryFocus.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => toggleCategoryFocus(cat)}
+                        disabled={savingSettings}
+                        className="flex items-center gap-2 cursor-pointer text-left"
+                      >
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                            isChecked
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted-foreground"
+                          }`}
+                        >
+                          {isChecked && <Check className="h-3 w-3" />}
+                        </span>
+                        <span className="text-sm">{categoryLabel[cat]}</span>
+                      </button>
+                    );
+                  }
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -56,6 +56,19 @@ export const profiles = pgTable("profiles", {
     .notNull(),
 });
 
+// ─── Team Settings Type ────────────────────────────────
+export type TeamSettings = {
+  questionsPerRep: number;
+  leaderboardReset: "weekly" | "monthly" | "season";
+  categoryFocus: string[];
+};
+
+export const DEFAULT_TEAM_SETTINGS: TeamSettings = {
+  questionsPerRep: 5,
+  leaderboardReset: "weekly",
+  categoryFocus: [],
+};
+
 // ─── Teams ──────────────────────────────────────────────
 export const teams = pgTable("teams", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -63,6 +76,7 @@ export const teams = pgTable("teams", {
   ageGroup: ageGroupEnum("age_group").notNull().default("12U"),
   theme: text("theme").default("default"),
   joinCode: varchar("join_code", { length: 8 }).notNull().unique(),
+  settings: jsonb("settings").$type<TeamSettings>().default({ questionsPerRep: 5, leaderboardReset: "weekly", categoryFocus: [] }),
   createdBy: uuid("created_by")
     .references(() => profiles.id)
     .notNull(),

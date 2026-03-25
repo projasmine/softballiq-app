@@ -18,7 +18,8 @@ interface LeaderboardViewProps {
       avgResponseTimeMs: number | null;
     }[];
     teamName: string;
-    weekOf?: string;
+    weekOf?: string | null;
+    leaderboardReset?: string;
     allTimeMVP?: {
       userId: string;
       displayName: string;
@@ -53,9 +54,16 @@ export function LeaderboardView({ data }: LeaderboardViewProps) {
 
   const medals = ["🥇", "🥈", "🥉"];
 
-  const weekLabel = data.weekOf
-    ? `Week of ${new Date(data.weekOf).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
-    : "This Week";
+  const resetType = data.leaderboardReset ?? "weekly";
+  const periodLabel = resetType === "season"
+    ? "All Season"
+    : resetType === "monthly"
+      ? data.weekOf
+        ? new Date(data.weekOf).toLocaleDateString("en-US", { month: "long" })
+        : "This Month"
+      : data.weekOf
+        ? `Week of ${new Date(data.weekOf).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        : "This Week";
 
   return (
     <div className="space-y-4">
@@ -84,7 +92,7 @@ export function LeaderboardView({ data }: LeaderboardViewProps) {
           <p className="text-sm text-muted-foreground">{data.teamName}</p>
         )}
         <Badge variant="outline" className="text-[10px]">
-          {weekLabel}
+          {periodLabel}
         </Badge>
       </div>
 
