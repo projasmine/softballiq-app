@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { questions } from "@/lib/db/schema";
+import type { QuestionOption } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,5 +18,15 @@ export async function GET(request: NextRequest) {
     .orderBy(sql`random()`)
     .limit(5);
 
-  return NextResponse.json(rows);
+  // Shuffle option order so correct answer position is unpredictable
+  const shuffled = rows.map((q) => {
+    const options = [...(q.options as QuestionOption[])];
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return { ...q, options };
+  });
+
+  return NextResponse.json(shuffled);
 }

@@ -277,7 +277,7 @@ export async function startDailyRep() {
   return {
     success: true,
     attemptId: attempt.id,
-    questions: mergedQuestions,
+    questions: shuffleQuestionOptions(mergedQuestions),
   };
 }
 
@@ -577,7 +577,7 @@ export async function startAssignment(assignmentId: string) {
   return {
     success: true,
     attemptId: attempt.id,
-    questions: mergedQuestions,
+    questions: shuffleQuestionOptions(mergedQuestions),
     assignmentId,
     timeLimitSeconds: assignment.timeLimitSeconds,
   };
@@ -854,7 +854,15 @@ export async function getLeaderboardData() {
       )
     );
 
-  // Get scores for each member
+  // Calculate Monday of current week for weekly leaderboard
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const weekStart = new Date(now);
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() + mondayOffset);
+
+  // Get scores for each member (this week only)
   const playerScores = await Promise.all(
     members.map(async (member) => {
       const attempts = await db
@@ -863,7 +871,8 @@ export async function getLeaderboardData() {
         .where(
           and(
             eq(quizAttempts.userId, member.userId),
-            eq(quizAttempts.teamId, membership.teamId)
+            eq(quizAttempts.teamId, membership.teamId),
+            gte(quizAttempts.createdAt, weekStart)
           )
         );
 
@@ -879,7 +888,7 @@ export async function getLeaderboardData() {
         .where(eq(dailyStreaks.userId, member.userId))
         .limit(1);
 
-      // Average response time for correct answers
+      // Average response time for correct answers (this week)
       const responseTimes = await db
         .select({ responseTimeMs: quizAnswers.responseTimeMs })
         .from(quizAnswers)
@@ -888,7 +897,8 @@ export async function getLeaderboardData() {
           and(
             eq(quizAttempts.userId, member.userId),
             eq(quizAnswers.isCorrect, true),
-            sql`${quizAnswers.responseTimeMs} IS NOT NULL`
+            sql`${quizAnswers.responseTimeMs} IS NOT NULL`,
+            gte(quizAnswers.answeredAt, weekStart)
           )
         );
 
@@ -914,7 +924,42 @@ export async function getLeaderboardData() {
 
   playerScores.sort((a, b) => b.totalScore - a.totalScore);
 
-  return { players: playerScores, teamName: team?.name ?? "" };
+  // All-time best: highest single-week accuracy with minimum 10 questions
+  const allTimeStats = await Promise.all(
+    members.map(async (member) => {
+      const allAttempts = await db
+        .select()
+        .from(quizAttempts)
+        .where(
+          and(
+            eq(quizAttempts.userId, member.userId),
+            eq(quizAttempts.teamId, membership.teamId)
+          )
+        );
+
+      const allTimeScore = allAttempts.reduce((sum, a) => sum + (a.score || 0), 0);
+      const allTimeQuestions = allAttempts.reduce((sum, a) => sum + a.totalQuestions, 0);
+
+      return {
+        userId: member.userId,
+        displayName: member.displayName,
+        totalScore: allTimeScore,
+        totalQuestions: allTimeQuestions,
+        accuracy: allTimeQuestions > 0 ? Math.round((allTimeScore / allTimeQuestions) * 100) : 0,
+      };
+    })
+  );
+
+  // All-time MVP: most total correct answers
+  const allTimeSorted = [...allTimeStats].sort((a, b) => b.totalScore - a.totalScore);
+  const allTimeMVP = allTimeSorted.find((p) => p.totalQuestions >= 5) ?? null;
+
+  return {
+    players: playerScores,
+    teamName: team?.name ?? "",
+    weekOf: weekStart.toISOString(),
+    allTimeMVP,
+  };
 }
 
 export async function getTeamRoster() {
@@ -1772,7 +1817,7 @@ export async function startStudyMode() {
   return {
     success: true,
     attemptId: attempt.id,
-    questions: mergedQuestions,
+    questions: shuffleQuestionOptions(mergedQuestions),
   };
 }
 
@@ -2161,6 +2206,18 @@ export async function completeDonation(sessionId: string) {
     console.error("Complete donation error:", e);
     return { success: false };
   }
+}
+
+/** Shuffle option order on questions so correct answer isn't predictable */
+function shuffleQuestionOptions<T extends { options: unknown; correctOptionId?: unknown }>(questions: T[]): T[] {
+  return questions.map((q) => {
+    const options = [...(q.options as QuestionOption[])];
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return { ...q, options };
+  });
 }
 
 function generateJoinCode(): string {
