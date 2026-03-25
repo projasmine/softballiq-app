@@ -189,6 +189,57 @@ export async function startDailyRep() {
     .where(eq(teamMembers.userId, userId))
     .limit(1);
 
+  // Check weekly rep limit (Free: 5/week, Pro: unlimited)
+  const positions = (profile?.positions as string[]) || [];
+
+  // Get coach's plan for the team
+  let teamPlan = "free";
+  if (membership?.teamId) {
+    const [teamCoach] = await db
+      .select({ plan: profiles.plan })
+      .from(teamMembers)
+      .innerJoin(profiles, eq(profiles.id, teamMembers.userId))
+      .where(
+        and(
+          eq(teamMembers.teamId, membership.teamId),
+          eq(teamMembers.role, "coach")
+        )
+      )
+      .limit(1);
+    teamPlan = teamCoach?.plan ?? "free";
+  }
+  // Also check user's own plan (for coaches doing reps)
+  if (profile?.plan === "pro") teamPlan = "pro";
+
+  if (teamPlan !== "pro") {
+    // Calculate start of current week (Monday)
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setHours(0, 0, 0, 0);
+    weekStart.setDate(weekStart.getDate() + mondayOffset);
+
+    const weeklyReps = await db
+      .select({ id: quizAttempts.id })
+      .from(quizAttempts)
+      .where(
+        and(
+          eq(quizAttempts.userId, userId),
+          eq(quizAttempts.type, "daily_rep"),
+          gte(quizAttempts.createdAt, weekStart)
+        )
+      );
+
+    const FREE_WEEKLY_LIMIT = 5;
+    if (weeklyReps.length >= FREE_WEEKLY_LIMIT) {
+      return {
+        success: false,
+        error: `You've used all ${FREE_WEEKLY_LIMIT} free reps this week. Ask your coach to upgrade to Pro for unlimited reps!`,
+      };
+    }
+  }
+
   // Get recently answered question IDs to avoid repeats
   const recentAttempts = await db
     .select({ id: quizAttempts.id })
@@ -254,7 +305,6 @@ export async function startDailyRep() {
   }
 
   // Prefer position-relevant questions
-  const positions = (profile?.positions as string[]) || [];
   const positionQuestions = questionPool.filter(
     (q) =>
       !q.positions ||
@@ -733,6 +783,42 @@ export async function getDashboardData() {
       .limit(5);
   }
 
+  // Weekly rep count for free tier limit display
+  const now2 = new Date();
+  const dow = now2.getDay();
+  const monOff = dow === 0 ? -6 : 1 - dow;
+  const wkStart = new Date(now2);
+  wkStart.setHours(0, 0, 0, 0);
+  wkStart.setDate(wkStart.getDate() + monOff);
+
+  const weeklyReps = await db
+    .select({ id: quizAttempts.id })
+    .from(quizAttempts)
+    .where(
+      and(
+        eq(quizAttempts.userId, userId),
+        eq(quizAttempts.type, "daily_rep"),
+        gte(quizAttempts.createdAt, wkStart)
+      )
+    );
+
+  // Determine if team is Pro
+  let isPro = profile.plan === "pro";
+  if (!isPro && membership) {
+    const [teamCoach] = await db
+      .select({ plan: profiles.plan })
+      .from(teamMembers)
+      .innerJoin(profiles, eq(profiles.id, teamMembers.userId))
+      .where(
+        and(
+          eq(teamMembers.teamId, membership.teamId),
+          eq(teamMembers.role, "coach")
+        )
+      )
+      .limit(1);
+    isPro = teamCoach?.plan === "pro";
+  }
+
   return {
     profile,
     membership,
@@ -741,6 +827,8 @@ export async function getDashboardData() {
     recentAttempts,
     pendingAssignments,
     recentAssignments,
+    weeklyRepsUsed: weeklyReps.length,
+    weeklyRepLimit: isPro ? null : 5, // null = unlimited
   };
 }
 

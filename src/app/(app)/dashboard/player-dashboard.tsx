@@ -22,6 +22,8 @@ interface PlayerDashboardProps {
       createdAt: Date;
     }[];
     pendingAssignments: { id: string; title: string; dueDate: Date | null }[];
+    weeklyRepsUsed?: number;
+    weeklyRepLimit?: number | null;
   };
 }
 
@@ -57,9 +59,16 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
       {!dailyRepCompleted ? (
         <Card className="border-l-2 border-l-primary">
           <CardContent className="pt-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 text-primary" />
-              <h2 className="font-semibold text-sm">Daily Rep</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-primary" />
+                <h2 className="font-semibold text-sm">Daily Rep</h2>
+              </div>
+              {data.weeklyRepLimit !== null && data.weeklyRepLimit !== undefined && (
+                <Badge variant="outline" className="text-[10px]">
+                  {Math.max(0, data.weeklyRepLimit - (data.weeklyRepsUsed ?? 0))}/{data.weeklyRepLimit} left
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-muted-foreground">
               5 quick questions to keep your softball IQ sharp.

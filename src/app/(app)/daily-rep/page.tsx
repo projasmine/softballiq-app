@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { QuestionCard } from "@/components/quiz/question-card";
 import { startDailyRep, submitAnswer, completeQuiz, getDashboardData } from "@/app/actions";
 import type { QuestionOption, Situation } from "@/lib/db/schema";
-import { Loader2, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, User, Lock, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 type Question = {
   id: string;
@@ -90,9 +93,36 @@ export default function DailyRepPage() {
   }
 
   if (error) {
+    const isLimitError = error.includes("free reps");
     return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">{error}</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
+        {isLimitError ? (
+          <>
+            <Lock className="h-10 w-10 text-muted-foreground" />
+            <div className="space-y-1">
+              <p className="font-semibold">Weekly Limit Reached</p>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                You&apos;ve completed all 5 free reps this week. Upgrade to Pro for unlimited reps!
+              </p>
+            </div>
+            <Card className="w-full max-w-xs">
+              <CardContent className="pt-4 pb-4 text-center space-y-2">
+                <div className="flex items-center justify-center gap-1.5 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-sm font-semibold">Pro — Unlimited Reps</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Ask your coach to upgrade or enter a promo code in Settings.
+                </p>
+              </CardContent>
+            </Card>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard">Back to Dashboard</Link>
+            </Button>
+          </>
+        ) : (
+          <p className="text-muted-foreground">{error}</p>
+        )}
       </div>
     );
   }
