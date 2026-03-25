@@ -65,9 +65,17 @@ export function PlayerDashboard({ data }: PlayerDashboardProps) {
                 <h2 className="font-semibold text-sm">Daily Rep</h2>
               </div>
               {data.weeklyRepLimit !== null && data.weeklyRepLimit !== undefined && (
-                <Badge variant="outline" className="text-[10px]">
-                  {Math.max(0, data.weeklyRepLimit - (data.weeklyRepsUsed ?? 0))}/{data.weeklyRepLimit} left
-                </Badge>
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline" className="text-[10px]">
+                    {Math.max(0, data.weeklyRepLimit - (data.weeklyRepsUsed ?? 0))}/{data.weeklyRepLimit} left
+                  </Badge>
+                  <Link
+                    href="/subscribe"
+                    className="text-[10px] text-primary font-medium hover:underline"
+                  >
+                    Upgrade
+                  </Link>
+                </div>
               )}
             </div>
             <p className="text-sm text-muted-foreground">

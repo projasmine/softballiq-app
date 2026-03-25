@@ -2290,6 +2290,107 @@ export async function submitFeedback(message: string) {
   return { success: true };
 }
 
+// ─── Subscription Actions ─────────────────────────────
+export async function isSubscriptionsEnabled() {
+  return !!process.env.STRIPE_SECRET_KEY;
+}
+
+export async function createSubscriptionCheckout() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return { success: false, error: "Subscriptions are not configured" };
+  }
+
+  const userId = await requireUserId();
+
+  // Verify coach role and not already Pro
+  const [profile] = await db
+    .select({ role: profiles.role, plan: profiles.plan })
+    .from(profiles)
+    .where(eq(profiles.id, userId))
+    .limit(1);
+
+  if (!profile || profile.role !== "coach") {
+    return { success: false, error: "Only coaches can subscribe to Pro" };
+  }
+
+  if (profile.plan === "pro") {
+    return { success: false, error: "You already have Pro access" };
+  }
+
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Softball IQ Pro",
+              description: "Unlimited reps, configurable questions, video uploads, team themes, and more.",
+            },
+            unit_amount: 999,
+            recurring: {
+              interval: "month",
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `https://softballiq.app/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://softballiq.app/settings`,
+      metadata: {
+        userId,
+      },
+      client_reference_id: userId,
+    });
+
+    return { success: true, url: checkoutSession.url };
+  } catch (e) {
+    console.error("Stripe subscription checkout error:", e);
+    return { success: false, error: "Failed to create checkout session" };
+  }
+}
+
+export async function confirmSubscription(sessionId: string) {
+  if (!sessionId || !process.env.STRIPE_SECRET_KEY) {
+    return { success: false, error: "Invalid session" };
+  }
+
+  try {
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (
+      session.payment_status === "paid" ||
+      session.status === "complete"
+    ) {
+      const userId = session.metadata?.userId || session.client_reference_id;
+      if (!userId) {
+        return { success: false, error: "Could not identify user" };
+      }
+
+      await db
+        .update(profiles)
+        .set({ plan: "pro" })
+        .where(eq(profiles.id, userId));
+
+      revalidatePath("/settings");
+      revalidatePath("/dashboard");
+      return { success: true };
+    }
+
+    return { success: false, error: "Payment not completed" };
+  } catch (e) {
+    console.error("Confirm subscription error:", e);
+    return { success: false, error: "Failed to confirm subscription" };
+  }
+}
+
 // ─── Donation Actions ─────────────────────────────────
 export async function isDonationsEnabled() {
   return !!process.env.STRIPE_SECRET_KEY;

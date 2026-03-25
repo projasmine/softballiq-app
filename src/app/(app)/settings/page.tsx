@@ -20,7 +20,7 @@ import type { TeamSettings } from "@/lib/db/schema";
 import { DEFAULT_TEAM_SETTINGS } from "@/lib/db/schema";
 import { categoryLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trash2, Palette, MessageSquare, Heart, Settings2, Check, Ticket } from "lucide-react";
+import { Loader2, Trash2, Palette, MessageSquare, Heart, Settings2, Check, Ticket, Crown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -391,6 +391,23 @@ export default function SettingsPage() {
                 )}
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Upgrade to Pro — coaches without Pro */}
+      {role === "coach" && plan !== "pro" && (
+        <Card>
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Crown className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Unlock all features</span>
+            </div>
+            <Button asChild className="w-full">
+              <Link href="/subscribe">
+                Upgrade to Pro — $9.99/mo
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       )}
