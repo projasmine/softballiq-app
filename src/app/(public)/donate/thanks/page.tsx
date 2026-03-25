@@ -41,8 +41,8 @@ function ThanksContent() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Thank You!</h1>
         <p className="text-muted-foreground max-w-sm">
-          Your support means the world to us. Every donation helps us keep
-          Softball IQ free and build new features for players and coaches.
+          Your support means the world to us. It helps us keep Softball IQ
+          free and build new features for players and coaches.
         </p>
       </div>
 

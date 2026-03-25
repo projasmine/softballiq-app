@@ -2060,7 +2060,7 @@ export async function isDonationsEnabled() {
 }
 export async function createDonationCheckout(amountCents: number, message?: string) {
   if (!process.env.STRIPE_SECRET_KEY) {
-    return { success: false, error: "Donations are not configured" };
+    return { success: false, error: "Support payments are not configured" };
   }
 
   const session = await auth();
@@ -2093,7 +2093,7 @@ export async function createDonationCheckout(amountCents: number, message?: stri
             currency: "usd",
             product_data: {
               name: "Support Softball IQ",
-              description: "Thank you for supporting girls\' softball education!",
+              description: "Thank you for supporting Softball IQ!",
             },
             unit_amount: amountCents,
           },
@@ -2149,7 +2149,7 @@ export async function completeDonation(sessionId: string) {
         if (donation?.userId) {
           await db.insert(feedback).values({
             userId: donation.userId,
-            message: `[Donation] ${donationMessage}`,
+            message: `[Support] ${donationMessage}`,
           });
         }
       }

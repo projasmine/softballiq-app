@@ -155,7 +155,7 @@ export default function AboutPage() {
         <p className="text-xs text-muted-foreground">
           Love Softball IQ?{" "}
           <Link href="/donate" className="text-primary hover:underline">
-            Support us with a donation
+            Support Softball IQ
           </Link>
         </p>
       </section>

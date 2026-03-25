@@ -14,7 +14,7 @@ const AMOUNTS = [
   { label: "$50", cents: 5000 },
 ];
 
-export default function DonatePage() {
+export default function SupportPage() {
   const [selectedAmount, setSelectedAmount] = useState(1000);
   const [customAmount, setCustomAmount] = useState("");
   const [isCustom, setIsCustom] = useState(false);
@@ -32,9 +32,9 @@ export default function DonatePage() {
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
         <Heart className="h-10 w-10 text-muted-foreground" />
         <div className="space-y-1">
-          <h1 className="text-xl font-bold">Donations Coming Soon</h1>
+          <h1 className="text-xl font-bold">Support Coming Soon</h1>
           <p className="text-sm text-muted-foreground">
-            We&apos;re setting up donations. Check back soon!
+            We&apos;re setting this up. Check back soon!
           </p>
         </div>
         <Button asChild variant="outline">
@@ -52,17 +52,17 @@ export default function DonatePage() {
     );
   }
 
-  const handleDonate = async () => {
+  const handleSupport = async () => {
     const amountCents = isCustom
       ? Math.round(parseFloat(customAmount) * 100)
       : selectedAmount;
 
     if (!amountCents || amountCents < 100) {
-      setError("Minimum donation is $1.00");
+      setError("Minimum amount is $1.00");
       return;
     }
     if (amountCents > 100000) {
-      setError("Maximum donation is $1,000");
+      setError("Maximum amount is $1,000");
       return;
     }
 
@@ -84,8 +84,8 @@ export default function DonatePage() {
         <Heart className="h-10 w-10 text-primary mx-auto" />
         <h1 className="text-2xl font-bold">Support Softball IQ</h1>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Softball IQ is free for everyone. Your donation helps us keep it that
-          way and build new features for players and coaches.
+          Softball IQ is free for everyone. Your support helps us keep building
+          new features for players and coaches.
         </p>
       </div>
 
@@ -165,7 +165,7 @@ export default function DonatePage() {
           )}
 
           <Button
-            onClick={handleDonate}
+            onClick={handleSupport}
             disabled={loading}
             size="lg"
             className="w-full text-base"
@@ -177,7 +177,7 @@ export default function DonatePage() {
             )}
             {loading
               ? "Redirecting..."
-              : `Donate ${
+              : `Support — ${
                   isCustom && customAmount
                     ? `$${customAmount}`
                     : `$${(selectedAmount / 100).toFixed(0)}`
@@ -185,7 +185,7 @@ export default function DonatePage() {
           </Button>
 
           <p className="text-[10px] text-muted-foreground text-center">
-            Payments processed securely by Stripe. Donations are not tax-deductible.
+            Payments processed securely by Stripe.
           </p>
         </CardContent>
       </Card>
